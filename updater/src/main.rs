@@ -213,7 +213,7 @@ async fn main() -> ExitCode {
         .with_writer(std::io::stderr)
         .init();
 
-    duck_ipc_proto::log_startup_identity!("updaterd");
+    vibe_ipc_proto::log_startup_identity!("updaterd");
 
     match args.command {
         Some(Command::Install {

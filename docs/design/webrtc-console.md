@@ -13,7 +13,7 @@ owner and this one points at it.
 **All four changes are in.** This page was written before the first line of them, so the decisions
 are arguable rather than implied by a diff; it is kept because the alternatives are the part worth
 being able to re-read. Where the code and this page could drift, the code is the answer:
-`mediad/src/web.rs` serves the page, `mediad/src/producer.rs` fills in `meta`, `duckctl`'s `ip` and
+`mediad/src/web.rs` serves the page, `mediad/src/producer.rs` fills in `meta`, `vibectl`'s `ip` and
 `open` find the robot, and `mediad/webclient/index.html` is the console. §7 says what is left.
 
 ## 0. What was wrong with it
@@ -90,7 +90,7 @@ it this way first.
 Three things keep it there, and they are requirements on the change rather than hopes:
 
 - **One address is typed.** `http://<robot>:8080`. The 8443 is reached by the page's own
-  JavaScript and never by a human. `duckctl open` (§2) removes even that one.
+  JavaScript and never by a human. `vibectl open` (§2) removes even that one.
 - **`mediad` fills the signalling URL in as it serves the page**, rather than the page carrying a
   constant. It knows the host the request arrived on and it knows its own `--port`, so the page
   gets the real answer — one `str::replace` over the embedded string at startup. This is what
@@ -117,20 +117,20 @@ Worth writing down now rather than discovering it while wiring a microphone.
 
 ## 2. Finding the robot: two commands, and one of them is already hand-rolled
 
-**Landed** — `duckctl ip` and `duckctl open`, advertisement first and `net.status` behind it.
+**Landed** — `vibectl ip` and `vibectl open`, advertisement first and `net.status` behind it.
 
-`btd` files the robot's IPv4 in its advertisement under company id `0xFFFF`, and `duckctl`
+`btd` files the robot's IPv4 in its advertisement under company id `0xFFFF`, and `vibectl`
 already parses it — `Address::At`, `Unassigned`, `Unsaid`, three answers rather than two, and
 `scan` prints it today. So the work is a command, not a mechanism.
 
-### 2.1 `duckctl ip`
+### 2.1 `vibectl ip`
 
-The robot's address on stdout and nothing else, so `ssh radxa@$(duckctl ip)` works — the split
+The robot's address on stdout and nothing else, so `ssh radxa@$(vibectl ip)` works — the split
 the tool already keeps, diagnostics on stderr and data on stdout.
 
 **This is not a new idea in this repo; it is one that has already been written badly once.**
 `scripts/dev-push.sh` needs exactly this and hand-rolls it: `resolve_board()` calls
-`duckctl wifi status` and pipes the JSON through a six-line Python program embedded in the
+`vibectl wifi status` and pipes the JSON through a six-line Python program embedded in the
 shell script to pull `result.ip4`. That is the command, minus a home.
 
 Reading the advertisement rather than calling `net.status` is better on three counts, all of them
@@ -141,21 +141,21 @@ visible in what `dev-push.sh` had to write around:
   refused, so that branch stops existing.
 - **Seconds rather than tens of seconds.** `dev-push.sh` caches the address per robot precisely
   because "BLE discovery costs ten to twenty seconds"; a scan that stops at the first matching
-  advertisement is about a second, because `duckctl` already polls until something appears
+  advertisement is about a second, because `vibectl` already polls until something appears
   rather than sleeping out `SCAN_TIME`.
 - **It is not stale.** `btd`'s `reconcile_advertisement` re-reads `net.status` every `ADV_POLL`
   (5s) and re-advertises when the answer moves, so the advertisement *is* `net.status` with a
   five-second lag — well inside the window in which a new lease has already broken ssh.
 
 **With one fallback, which is not optional.** A robot bonded to this Mac often stops advertising
-the service to it — `duckctl`'s own scan tiers exist for that — so when no advertisement is
+the service to it — `vibectl`'s own scan tiers exist for that — so when no advertisement is
 seen, `ip` connects and asks `net.status`, which is what `dev-push.sh` does today. Cheap read
 first, call second. Without the fallback this command would fail on exactly the laptops that use
 it most.
 
 The three-way `Address` already carries the right failure text and this is where it pays:
 
-- `Unassigned` — the robot has no network. The fix is `duckctl wifi connect`, and it has to be
+- `Unassigned` — the robot has no network. The fix is `vibectl wifi connect`, and it has to be
   over BLE, because `net.connect` is refused over WebRTC by design ("a robot that has never seen a
   network cannot be configured over that network").
 - `Unsaid` — a release from before `btd` advertised an address. The fallback answers anyway;
@@ -164,19 +164,19 @@ The three-way `Address` already carries the right failure text and this is where
 Its third caller is neither of the two above: `install-dev.md` opens by asking for "the board's
 **IP address**", with the note that mDNS on this image is unreliable, and offers no way to get it.
 
-### 2.2 `duckctl open`
+### 2.2 `vibectl open`
 
 Resolve, then open `http://<address>:8080/` in the browser. `--print` prints the URL instead, for
 a machine with no browser or a script; `--port` for a robot started with a non-default
 `--web-port`.
 
 A command rather than a documented shell substitution, for one reason: **the port default should
-live in exactly one place that a person never has to read.** `open "http://$(duckctl ip):8080"`
+live in exactly one place that a person never has to read.** `open "http://$(vibectl ip):8080"`
 works, and it is the kind of line someone writes once and then looks up forever.
 
 ### 2.3 Not these
 
-- **`duckctl url`.** That is `open --print`. A third command whose entire content is a port
+- **`vibectl url`.** That is `open --print`. A third command whose entire content is a port
   number.
 - **A URL column on `scan`.** `scan` lists earbuds too, and the robot lines already carry the
   address. One note under the list pointing at `open` is enough.
@@ -194,20 +194,20 @@ The follow-on, in its own change rather than these four: `dev-push.sh`'s `resolv
 `client --name "$1" ip`, deleting the embedded Python and the wrong-PIN branch. Separate because it
 touches the push path, and because it should land after `ip` has been used by hand a few times.
 
-`duckctl` is a stopgap for the phone app, so this stays at two commands and no new mechanism.
+`vibectl` is a stopgap for the phone app, so this stays at two commands and no new mechanism.
 The durable halves are the ones that outlive it: `btd` broadcasting the address, and `mediad`
 serving on a known port. The app will do the same two steps natively.
 
 ## 3. The tool is named after a transport it is about to stop being
 
-**Decided and landed** — `duck-btctl` is `duckctl`, in its own crate. The rest of this section is
+**Decided and landed** — `duck-btctl` is `vibectl`, in its own crate. The rest of this section is
 the reasoning, kept because the alternatives are the part worth being able to re-read.
 
 `open` launches a browser at an http URL, and the name of the tool that does it said `bt`. Worth
 pulling on, because it turned out to point at something larger than one command.
 
 **`open` itself is not misplaced.** Its substance *is* Bluetooth: it scans for an advertisement to
-learn where the robot is, and the `xdg-open` on the end is one line. `duckctl open` reads as
+learn where the robot is, and the `xdg-open` on the end is one line. `vibectl open` reads as
 "use the radio to find the robot, then show me its console", which is exactly what it does — the
 same way `wifi connect` is a wifi command whose whole mechanism is BLE.
 
@@ -231,16 +231,16 @@ today stop being awkward on the way:
 
 - **The install line.** `cargo install --path btd --example duck-btctl` is odd enough that
   `dev-push.sh` carries a fallback for clones that never ran it — it shells out to
-  `cargo run -q -p btd --example duck-btctl` instead. `cargo install --path duckctl` needs no
+  `cargo run -q -p btd --example duck-btctl` instead. `cargo install --path vibectl` needs no
   fallback.
 - **The example-that-is-really-a-product.** The reason it is an example is to keep `btleplug` off
   the robot, since an example's dev-dependencies never reach the shipped artifact. Its own crate
   keeps that for free, by not being a dependency of any daemon — the same guarantee, stated
   directly rather than as a side effect of where the file sits.
 
-### 3.2 `duckctl`
+### 3.2 `vibectl`
 
-It pairs with `robotctl` the way the two are actually used: `robotctl` on the robot, `duckctl` at
+It pairs with `robotctl` the way the two are actually used: `robotctl` on the robot, `vibectl` at
 it. It keeps the `duck-` family the repo is already named for, and it is short enough to type
 without an alias.
 
@@ -270,7 +270,7 @@ a year.
 for aarch64. As an example it was excluded for free; as a crate it would be cross-compiled, which
 means building a Bluetooth stack for a board that must never see one, on the release path.
 
-**`default-members` in the workspace root, everything except `duckctl`.** One list, rather than
+**`default-members` in the workspace root, everything except `vibectl`.** One list, rather than
 naming binaries at each of the two `--bins` call sites and keeping the two in step by hand — which
 is the failure this repo keeps writing down. `--workspace` is unaffected, so CI lints and tests it
 exactly as before.
@@ -342,11 +342,11 @@ Four changes, each of which stood alone and landed separately, in this order:
    copy of `API_VERSION`, wrong on the day it is bumped and wrong in the direction that reports
    agreement.
 2. **Producer `meta`.** Smaller still, and independent.
-3. **`duckctl` gains `ip` and `open`.** Client-side only, touched no daemon.
+3. **`vibectl` gains `ip` and `open`.** Client-side only, touched no daemon.
 4. **The console.** The large one, done last, on a page that was already reachable.
 
 **Not done, and deliberately separate:** `dev-push.sh`'s `resolve_board` still hand-rolls this with
-`duckctl wifi status` and six lines of embedded Python (§2.4). It becomes `duckctl ip`, which deletes
+`vibectl wifi status` and six lines of embedded Python (§2.4). It becomes `vibectl ip`, which deletes
 the Python and the wrong-PIN branch — separate because it touches the push path, and because it
 should land after `ip` has been used by hand a few times.
 
@@ -359,4 +359,4 @@ should land after `ip` has been used by hand a few times.
   a client that needs npm is a client nobody runs. Still true at four times the size.
 - **Serving over TLS.** §1.3 says when, and why it was not now.
 - **Teaching the advertisement a port.** Four bytes of IPv4 is what it carries; a robot on a
-  non-default `--web-port` is a `--port` on `duckctl open`, not a wire-format change.
+  non-default `--web-port` is a `--port` on `vibectl open`, not a wire-format change.

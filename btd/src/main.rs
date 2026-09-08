@@ -19,15 +19,15 @@ use clap::Parser;
 )]
 struct Args {
     /// `updaterd`'s socket.
-    #[arg(long, default_value = duck_ipc_proto::socket::UPDATER)]
+    #[arg(long, default_value = vibe_ipc_proto::socket::UPDATER)]
     update_socket: PathBuf,
 
     /// `robotd`'s socket.
-    #[arg(long, default_value = duck_ipc_proto::socket::ROBOT)]
+    #[arg(long, default_value = vibe_ipc_proto::socket::ROBOT)]
     robot_socket: PathBuf,
 
     /// `configd`'s socket — wifi and the robot's identity.
-    #[arg(long, default_value = duck_ipc_proto::socket::CONFIG)]
+    #[arg(long, default_value = vibe_ipc_proto::socket::CONFIG)]
     config_socket: PathBuf,
 
     /// Require a paired, encrypted link.
@@ -101,7 +101,7 @@ async fn main() -> ExitCode {
         .init();
 
     let args = Args::parse();
-    duck_ipc_proto::log_startup_identity!("btd");
+    vibe_ipc_proto::log_startup_identity!("btd");
 
     let sockets = Sockets {
         updater: args.update_socket,

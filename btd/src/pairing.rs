@@ -65,7 +65,7 @@
 
 use std::time::Duration;
 
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 
 /// How long to wait for `configd` to answer with the PIN.
 ///

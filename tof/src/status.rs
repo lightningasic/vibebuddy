@@ -6,7 +6,7 @@
 
 use std::sync::Mutex;
 
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 
 pub struct Status {
     hz: u8,

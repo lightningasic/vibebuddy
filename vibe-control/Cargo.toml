@@ -1,5 +1,5 @@
 [package]
-name = "duck-control"
+name = "vibe-control"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -11,7 +11,7 @@ description = "Robot control core: model, bus, sensing"
 # already links, and this crate re-exports it rather than keeping a second copy in step by
 # hand. Not a door onto IPC: nothing here speaks to a socket, and `robotd` already links
 # both crates, so no binary gains a dependency from this edge.
-duck-ipc-proto = { path = "../duck-ipc-proto" }
+vibe-ipc-proto = { path = "../vibe-ipc-proto" }
 serde = { workspace = true }
 # The simulator link speaks newline-delimited JSON — see `sim` for why a packed struct shared
 # between two repositories in two languages is the worse trade.

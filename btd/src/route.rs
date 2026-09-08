@@ -18,7 +18,7 @@
 //! cannot see a feature nobody remembered to route. Every transport needs its own such match for
 //! the same reason — a shared one with a wildcard would be the hole in all of them at once.
 
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 
 /// How long a call holds a connection. Defined once, in the protocol crate.
 pub use proto::Lane;
@@ -348,7 +348,7 @@ fn permits(call: &proto::Call) -> bool {
         // The code the flow produces has to be *read by a person*, so the reply carrying it is
         // the point: this call sends about eighty bytes back, well inside what framing chunks,
         // and needs no link at all while the user is off approving it — see
-        // `duck_ipc_proto::API_VERSION`'s v23 note on why `login` answers with a code and not
+        // `vibe_ipc_proto::API_VERSION`'s v23 note on why `login` answers with a code and not
         // with a token. That is what makes an iPhone dropping the GATT link mid-flow a
         // non-event rather than a lost login.
         AccountLogin(_) | AccountStatus | AccountLogout => true,
@@ -444,8 +444,8 @@ mod tests {
     use super::*;
     // The shared list, not a local copy. Two copies of this had already drifted — 115 lines here
     // against 82 — which is how `pad.input` came to be missing from one of them.
-    use duck_ipc_proto::test_support::every_call;
-    use duck_ipc_proto::{ComponentId, semver};
+    use vibe_ipc_proto::test_support::every_call;
+    use vibe_ipc_proto::{ComponentId, semver};
 
     fn component() -> ComponentId {
         ComponentId::new("daemon")

@@ -34,13 +34,13 @@ use std::time::{Duration, Instant};
 
 use arc_swap::{ArcSwap, ArcSwapOption};
 use clap::{Parser, Subcommand};
-use duck_control::fall::{FallPredictor, FallPredictorConfig};
-use duck_control::io::RobotIo;
-use duck_control::obs::{BodyPose, Command as PolicyCommand};
-use duck_control::policy::{DEFAULT_STANDING_THRESHOLD, Policy, PolicyError, PolicyPaths};
-use duck_control::safety::{Safety, SafetyConfig};
-use duck_control::{DEFAULT_POSITION, FakeIo, NUM_JOINTS};
-use duck_ipc_proto as proto;
+use vibe_control::fall::{FallPredictor, FallPredictorConfig};
+use vibe_control::io::RobotIo;
+use vibe_control::obs::{BodyPose, Command as PolicyCommand};
+use vibe_control::policy::{DEFAULT_STANDING_THRESHOLD, Policy, PolicyError, PolicyPaths};
+use vibe_control::safety::{Safety, SafetyConfig};
+use vibe_control::{DEFAULT_POSITION, FakeIo, NUM_JOINTS};
+use vibe_ipc_proto as proto;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::{UnixListener, UnixStream};
 
@@ -133,7 +133,7 @@ const SEATED_BOOT_RAD: f64 = 0.30;
 /// Where the limp-fall sequence is (`[safety] limp_fall`).
 ///
 /// The daemon's only answer to a fall, and it runs *during* one rather than after it: the
-/// trigger is [`duck_control::fall::FallPredictor`], not the `fallen` verdict, because a
+/// trigger is [`vibe_control::fall::FallPredictor`], not the `fallen` verdict, because a
 /// verdict that waits for the robot to be down cannot make it soft before it lands.
 ///
 /// The verdict is still tracked and published throughout — it just does not gate anything.
@@ -226,9 +226,9 @@ struct Args {
 
     /// Run against a robot in MuJoCo, at `host:port`.
     ///
-    /// **The same daemon, a simulated body.** Everything above `duck_control::io::RobotIo` — the
+    /// **The same daemon, a simulated body.** Everything above `vibe_control::io::RobotIo` — the
     /// loop, the policy, safety, fall detection, odometry, kinematics, every IPC call — is the code
-    /// that runs on a robot, unchanged and unable to tell. `duck_control::sim` has the protocol and
+    /// that runs on a robot, unchanged and unable to tell. `vibe_control::sim` has the protocol and
     /// the reasons for its shape; `docs/design/simulation.md` has what it is and is not a twin of.
     ///
     /// Nothing is connected until the first tick, and a simulator that goes away is retried on
@@ -447,7 +447,7 @@ fn slot_report(
 /// it as evidence against each override in turn would silently strip a board's whole
 /// configuration because a dylib was not installed. `docs/design/policy-channel-design.md` §5.
 fn drop_unloadable_overrides(policy_params: &mut params::PolicyParams, errors: &mut SlotErrors) {
-    drop_unloadable_overrides_with(policy_params, errors, duck_control::policy::validate)
+    drop_unloadable_overrides_with(policy_params, errors, vibe_control::policy::validate)
 }
 
 /// [`drop_unloadable_overrides`] with the check injected, so its two rules can be tested on a
@@ -531,7 +531,7 @@ struct RobotState {
     /// joint it was. Zero means *not read yet*, same as the battery.
     motor_max_c: AtomicU64,
     motor_mean_c: AtomicU64,
-    /// Index into [`duck_control::JOINT_NAMES`] of the hottest joint.
+    /// Index into [`vibe_control::JOINT_NAMES`] of the hottest joint.
     motor_hottest: AtomicU32,
     /// Hottest board thermal zone, as `f64::to_bits`. Zero means no reading — off Linux, or a
     /// kernel with no thermal sysfs ([`soc`]).
@@ -828,7 +828,7 @@ impl RobotState {
         }
         let hottest = self.motor_hottest.load(Ordering::Relaxed) as usize;
         Some(proto::MotorThermal {
-            hottest: duck_control::JOINT_NAMES
+            hottest: vibe_control::JOINT_NAMES
                 .get(hottest)
                 .unwrap_or(&"unknown")
                 .to_string(),
@@ -848,7 +848,7 @@ impl RobotState {
         let volts = f64::from_bits(self.battery_v.load(Ordering::Relaxed));
         (volts > 0.0).then(|| proto::Battery {
             volts,
-            percent: duck_control::battery_percent(volts),
+            percent: vibe_control::battery_percent(volts),
         })
     }
 
@@ -919,7 +919,7 @@ async fn main() -> ExitCode {
                 return ExitCode::FAILURE;
             }
         };
-        duck_ipc_proto::log_startup_identity!("robotd");
+        vibe_ipc_proto::log_startup_identity!("robotd");
         return run_init(&params, duration);
     }
 
@@ -932,7 +932,7 @@ async fn main() -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
-    duck_ipc_proto::log_startup_identity!("robotd");
+    vibe_ipc_proto::log_startup_identity!("robotd");
 
     let state = Arc::new(RobotState::new(
         &params,
@@ -1003,7 +1003,7 @@ async fn main() -> ExitCode {
 /// Enable torque and ramp to the home pose.
 #[cfg(target_os = "linux")]
 fn run_init(params: &Params, duration: Duration) -> ExitCode {
-    let mut io = match duck_control::bus::DynamixelIo::open(&params.bus.port) {
+    let mut io = match vibe_control::bus::DynamixelIo::open(&params.bus.port) {
         Ok(io) => io,
         Err(e) => {
             tracing::error!(error = %e, port = %params.bus.port, "cannot open the bus");
@@ -1105,7 +1105,7 @@ fn spawn_control_thread(
             if let Some(addr) = sim {
                 tracing::warn!(%addr, "--sim: the body is in MuJoCo");
                 runtime.block_on(control_loop(
-                    duck_control::sim::RemoteIo::at(addr),
+                    vibe_control::sim::RemoteIo::at(addr),
                     state,
                     intents,
                     params,
@@ -1132,7 +1132,7 @@ fn spawn_control_thread(
 
 /// The real bus on the board; a fake elsewhere, so `open_bus_waiting` has one signature.
 #[cfg(target_os = "linux")]
-type BusIo = duck_control::bus::DynamixelIo;
+type BusIo = vibe_control::bus::DynamixelIo;
 #[cfg(not(target_os = "linux"))]
 type BusIo = FakeIo;
 
@@ -1173,7 +1173,7 @@ fn open_bus(port: &str, attempt: u32) -> Option<BusIo> {
     // First attempt and every thirtieth — about one line per 30 s while waiting.
     let loud = attempt == 0 || attempt.is_multiple_of(STARTUP_READ_LOG_EVERY);
 
-    let mut io = match duck_control::bus::DynamixelIo::open(port) {
+    let mut io = match vibe_control::bus::DynamixelIo::open(port) {
         Ok(io) => io,
         Err(e) => {
             if loud {
@@ -1883,7 +1883,7 @@ async fn control_loop<T: RobotIo>(
 
         let snapshot = intents.snapshot();
         let (gated, deadman) = safety.gate(snapshot.command, snapshot.twist_age);
-        let mut limits: Vec<duck_control::safety::Limit> = deadman.into_iter().collect();
+        let mut limits: Vec<vibe_control::safety::Limit> = deadman.into_iter().collect();
 
         // An explicit `robot.init` / `robot.relax`, taken once.
         //
@@ -1962,7 +1962,7 @@ async fn control_loop<T: RobotIo>(
         // leg while one reboots is not a robot to leave standing.
         if let Some(ids) = intents.take_reboot_motors() {
             let ids: Vec<u8> = if ids.is_empty() {
-                duck_control::model::JOINT_IDS.to_vec()
+                vibe_control::model::JOINT_IDS.to_vec()
             } else {
                 ids
             };
@@ -2200,7 +2200,7 @@ async fn control_loop<T: RobotIo>(
         let battery_v = f64::from_bits(state.battery_v.load(Ordering::Relaxed));
         let battery_empty = params.safety.battery_empty_shutdown
             && battery_v > 0.0
-            && battery_v <= duck_control::model::BATTERY_EMPTY_V;
+            && battery_v <= vibe_control::model::BATTERY_EMPTY_V;
         if !powered_off && shutdown_sit.is_none() && (intents.take_shutdown() || battery_empty) {
             let can_sit = snapshot.enabled
                 && bringup == Bringup::Ready
@@ -2787,8 +2787,8 @@ async fn control_loop<T: RobotIo>(
                     // open its beak: gating on `driving` made the visible half of the whole
                     // gesture silently absent on a sitting robot.
                     if snapshot.enabled && bringup == Bringup::Ready {
-                        targets[duck_control::model::MOUTH_INDEX] =
-                            duck_control::model::mouth_target(note.mouth);
+                        targets[vibe_control::model::MOUTH_INDEX] =
+                            vibe_control::model::mouth_target(note.mouth);
                     }
                     theremin_state = Some(block);
                 }
@@ -2887,8 +2887,8 @@ async fn control_loop<T: RobotIo>(
                     *offset += (target - *offset) * alpha;
                 }
                 if snapshot.enabled && bringup == Bringup::Ready {
-                    targets[duck_control::model::MOUTH_INDEX] =
-                        duck_control::model::mouth_target(chorale_mouth);
+                    targets[vibe_control::model::MOUTH_INDEX] =
+                        vibe_control::model::mouth_target(chorale_mouth);
                 }
                 chorale_state = Some(proto::ChoraleState {
                     listening: true,
@@ -2913,8 +2913,8 @@ async fn control_loop<T: RobotIo>(
         // Only while driving — a held or homing robot keeps whatever its hold pose says, so
         // a restart cannot snap a mouth.
         if driving && theremin_state.is_none() && chorale_state.is_none() {
-            targets[duck_control::model::MOUTH_INDEX] =
-                duck_control::model::mouth_target(snapshot.mouth);
+            targets[vibe_control::model::MOUTH_INDEX] =
+                vibe_control::model::mouth_target(snapshot.mouth);
         }
 
         match safety.apply(targets, hold, gain) {
@@ -3037,7 +3037,7 @@ fn file_name(path: &std::path::Path) -> Option<String> {
 /// stride that meant one tick of "snap to the home pose" at full gain, then a controller
 /// reset on the way back in. Roughly eight times a minute on a loaded board.
 struct Coast {
-    last: Option<duck_control::Sensors>,
+    last: Option<vibe_control::Sensors>,
     ticks: u32,
 }
 
@@ -3050,7 +3050,7 @@ impl Coast {
     }
 
     /// Feed a tick's read result; get back what the policy may step from.
-    fn sample(&mut self, fresh: Option<duck_control::Sensors>) -> Option<duck_control::Sensors> {
+    fn sample(&mut self, fresh: Option<vibe_control::Sensors>) -> Option<vibe_control::Sensors> {
         match fresh {
             Some(sensors) => {
                 self.ticks = 0;
@@ -3096,8 +3096,8 @@ fn has_any_wav(bank: &std::path::Path) -> bool {
     })
 }
 
-fn limit_name(limit: duck_control::safety::Limit) -> &'static str {
-    use duck_control::safety::Limit;
+fn limit_name(limit: vibe_control::safety::Limit) -> &'static str {
+    use vibe_control::safety::Limit;
     match limit {
         Limit::Deadman => "deadman",
         Limit::Range => "joint_range",
@@ -3665,7 +3665,7 @@ fn set_skill_request(
         // anything, and refusing a config edit on those grounds would send somebody to replace a
         // policy that is fine — the same distinction `drop_unloadable_overrides` draws at
         // startup, and what `PolicyError::path` exists for.
-        if let Err(e) = duck_control::policy::validate(path)
+        if let Err(e) = vibe_control::policy::validate(path)
             && e.path().is_some()
         {
             return proto::IntentResult::refused(e.to_string());
@@ -3882,7 +3882,7 @@ fn load_policy_request(
                     path.display()
                 ));
             }
-            if let Err(e) = duck_control::policy::validate(&path) {
+            if let Err(e) = vibe_control::policy::validate(&path) {
                 return proto::IntentResult::refused(e.to_string());
             }
             Some(path)
@@ -4438,7 +4438,7 @@ async fn shutdown() {
 mod mapping {
     use std::sync::LazyLock;
 
-    use duck_ipc_proto as proto;
+    use vibe_ipc_proto as proto;
 
     static FK: LazyLock<kinematics::head::HeadFk> = LazyLock::new(kinematics::head::HeadFk::alpha);
     static TOF: LazyLock<kinematics::tof::Reprojector> =
@@ -5717,22 +5717,22 @@ mod tests {
     /// `FakeIo` by reference, so a test can read what the loop did to it after the loop ends.
     struct Borrowed<'a, T>(&'a mut T);
     impl<T: RobotIo> RobotIo for Borrowed<'_, T> {
-        fn read(&mut self) -> duck_control::io::Result<duck_control::Sensors> {
+        fn read(&mut self) -> vibe_control::io::Result<vibe_control::Sensors> {
             self.0.read()
         }
-        fn write(&mut self, t: &duck_control::JointTargets) -> duck_control::io::Result<()> {
+        fn write(&mut self, t: &vibe_control::JointTargets) -> vibe_control::io::Result<()> {
             self.0.write(t)
         }
-        fn set_gain(&mut self, kp: u16) -> duck_control::io::Result<()> {
+        fn set_gain(&mut self, kp: u16) -> vibe_control::io::Result<()> {
             self.0.set_gain(kp)
         }
-        fn set_torque(&mut self, on: bool) -> duck_control::io::Result<()> {
+        fn set_torque(&mut self, on: bool) -> vibe_control::io::Result<()> {
             self.0.set_torque(on)
         }
-        fn reboot(&mut self, id: u8) -> duck_control::io::Result<()> {
+        fn reboot(&mut self, id: u8) -> vibe_control::io::Result<()> {
             self.0.reboot(id)
         }
-        fn slow_sensors(&mut self) -> duck_control::io::Result<duck_control::SlowSensors> {
+        fn slow_sensors(&mut self) -> vibe_control::io::Result<vibe_control::SlowSensors> {
             self.0.slow_sensors()
         }
     }
@@ -6054,7 +6054,7 @@ mod tests {
     /// Three assertions, one per link in that chain.
     #[test]
     fn a_dropped_read_is_survived_rather_than_jerked_through() {
-        let mut walking = duck_control::Sensors::default();
+        let mut walking = vibe_control::Sensors::default();
         walking.positions[2] = 0.9; // mid-stride, nowhere near the home pose
         let mut coast = Coast::new();
 
@@ -6407,7 +6407,7 @@ mod tests {
 
         let health = s.health();
         let battery = health.battery.expect("a flat battery is still a reading");
-        assert!(battery.volts < duck_control::BATTERY_EMPTY_V);
+        assert!(battery.volts < vibe_control::BATTERY_EMPTY_V);
         assert_eq!(battery.percent, 0.0);
 
         assert!(health.healthy, "{:?}", health.reason);
@@ -6480,7 +6480,7 @@ mod tests {
     fn thermals_name_the_hottest_joint() {
         let s = state();
         ticked(&s, 100);
-        let knee = duck_control::JOINT_NAMES
+        let knee = vibe_control::JOINT_NAMES
             .iter()
             .position(|n| *n == "left_knee")
             .unwrap();
@@ -7606,22 +7606,22 @@ mod tests {
     ) {
         struct Borrowed<'a, T>(&'a mut T);
         impl<T: RobotIo> RobotIo for Borrowed<'_, T> {
-            fn read(&mut self) -> duck_control::io::Result<duck_control::Sensors> {
+            fn read(&mut self) -> vibe_control::io::Result<vibe_control::Sensors> {
                 self.0.read()
             }
-            fn write(&mut self, t: &duck_control::JointTargets) -> duck_control::io::Result<()> {
+            fn write(&mut self, t: &vibe_control::JointTargets) -> vibe_control::io::Result<()> {
                 self.0.write(t)
             }
-            fn set_gain(&mut self, kp: u16) -> duck_control::io::Result<()> {
+            fn set_gain(&mut self, kp: u16) -> vibe_control::io::Result<()> {
                 self.0.set_gain(kp)
             }
-            fn set_torque(&mut self, on: bool) -> duck_control::io::Result<()> {
+            fn set_torque(&mut self, on: bool) -> vibe_control::io::Result<()> {
                 self.0.set_torque(on)
             }
-            fn reboot(&mut self, id: u8) -> duck_control::io::Result<()> {
+            fn reboot(&mut self, id: u8) -> vibe_control::io::Result<()> {
                 self.0.reboot(id)
             }
-            fn slow_sensors(&mut self) -> duck_control::io::Result<duck_control::SlowSensors> {
+            fn slow_sensors(&mut self) -> vibe_control::io::Result<vibe_control::SlowSensors> {
                 self.0.slow_sensors()
             }
         }

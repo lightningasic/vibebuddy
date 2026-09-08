@@ -1044,7 +1044,7 @@ mod tests {
             name: Some("olducky".to_owned()),
             kind: "microduck",
             release: "0.10.0".to_owned(),
-            api_version: duck_ipc_proto::API_VERSION,
+            api_version: vibe_ipc_proto::API_VERSION,
         }
     }
 
@@ -1171,7 +1171,7 @@ mod tests {
             name: Some("olducky".to_owned()),
             serial: None,
             release: "0.10.0".to_owned(),
-            api_version: duck_ipc_proto::API_VERSION,
+            api_version: vibe_ipc_proto::API_VERSION,
         };
 
         let meta = Meta::of(&producer, Some("machine-1".to_owned())).expect("a stable id");

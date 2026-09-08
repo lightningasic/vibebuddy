@@ -23,7 +23,7 @@ use std::path::Path;
 use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 
 #[cfg(target_os = "linux")]
 use std::path::PathBuf;

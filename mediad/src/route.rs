@@ -33,7 +33,7 @@
 //! service on both sides. This file is about which calls exist over the transport, not about who
 //! is holding it.
 
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 
 /// Where a call arriving over a WebRTC datachannel goes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

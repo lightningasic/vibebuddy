@@ -9,7 +9,7 @@ in containers sing a full chorale over the ether. How to use it is
 [`docs/robot/simulation.md`](../robot/simulation.md); this page is the design.
 
 The goal is a duck you develop against exactly as you develop against a robot: the same binaries,
-the same units, the same `robotctl`, the same `duckctl open` — with the body in MuJoCo instead of on
+the same units, the same `robotctl`, the same `vibectl open` — with the body in MuJoCo instead of on
 the desk. Not a mock, and not a test harness. A twin, with a written-down boundary.
 
 ## 1. What using it looks like
@@ -51,7 +51,7 @@ duck-a # journalctl -u robotd -f
 And from your own shell, exactly as with a robot on the desk:
 
 ```
-duckctl open duck-a
+vibectl open duck-a
 scripts/dev-push.sh microduck@duck-a
 ```
 
@@ -75,7 +75,7 @@ Four ducks in a chorale should not be four copies of one voice.
 
 ## 2. Where the seam is
 
-`duck_control::io::RobotIo` — six methods, and the only place a simulator is allowed to exist:
+`vibe_control::io::RobotIo` — six methods, and the only place a simulator is allowed to exist:
 
 ```rust
 fn read(&mut self) -> Result<Sensors>;          // joints and IMU, one transaction
@@ -86,7 +86,7 @@ fn slow_sensors(&mut self) -> Result<SlowSensors>;   // volts, per-joint tempera
 ```
 
 Above it, nothing changes: the 50 Hz loop, the ONNX policies, `Safety`, fall detection, odometry,
-kinematics, maploc, every IPC call, all of `robotctl` and `duckctl`. Below it there is one thing —
+kinematics, maploc, every IPC call, all of `robotctl` and `vibectl`. Below it there is one thing —
 `DynamixelIo` — and the IMU is not separate from it, because on this robot the IMU is a Dynamixel
 node read in the same `sync_read` as the fifteen servos.
 
@@ -100,7 +100,7 @@ reasoning will apply to anything else whose driver cannot be separated from its 
 
 ## 3. The body protocol
 
-TCP, newline-delimited JSON, one request and one answer per call. `duck_control::sim` is the
+TCP, newline-delimited JSON, one request and one answer per call. `vibe_control::sim` is the
 implementation and carries the reasoning; the short version:
 
 * **TCP** because a unix path is capped at `SUN_LEN` (~108 bytes), and because the simulator must be
@@ -147,7 +147,7 @@ in the twin converged on one piece every time — simultaneous starts, staggered
 — because every duck was visible to every other instantly and losslessly. The one property that
 causes the field bug was the one the simulator did not model.
 
-`duck-ether --discovery <s> --loss <f> --seed <n>` makes it a bad radio: a duck takes a while to be
+`vibe-ether --discovery <s> --loss <f> --seed <n>` makes it a bad radio: a duck takes a while to be
 *noticed*, per pair and timed from when it goes on the air, and a fraction of deliveries is dropped.
 Per pair because it is the asymmetry that splits a flock — one delay shared by everybody cannot
 produce it. Seeded, because a flaky radio is only useful for debugging if its flakiness repeats.
@@ -155,7 +155,7 @@ produce it. Seeded, because a flaky radio is only useful for debugging if its fl
 **The reproduction**, four ducks, `a` and `b` singing twelve seconds before `c` and `d` join:
 
 ```
-duck-ether --discovery 90 --loss 0.3 --seed 3
+vibe-ether --discovery 90 --loss 0.3 --seed 3
 ```
 
 On main's chorale:
@@ -250,7 +250,7 @@ booted from one Debian 13 Trixie rootfs (`mmdebstrap`, unprivileged, 238 MB, und
 with an overlay per duck. Run each as a service (`systemd-run --unit=duck-a …`) so `duck-sim down` is
 a `systemctl stop`: a duck you cannot quit is not much of a duck.
 
-`machinectl shell duck-a` is the way in, `duckctl open duck-a` the way to watch, and
+`machinectl shell duck-a` is the way in, `vibectl open duck-a` the way to watch, and
 `scripts/dev-push.sh microduck@duck-a` the way to install a build.
 
 Two limits that follow from the physics rather than the plumbing. **Ducks do not hot-join** — MuJoCo
@@ -272,7 +272,7 @@ lying down, correctly. `scene.xml` includes `robot_allcollisions.xml`, and is wh
 **`qpos0` is not a pose.** Every joint at zero is a shape this robot is never in; the daemon measured
 0.41 rad from its home frame and quite reasonably tried to stand up a robot that was already folded.
 The scenes carry `INIT`, `STAND`, `SIT` and `FOLD`, and `STAND` matches
-`duck_control::DEFAULT_POSITION` — whose right leg is *mirrored*, not symmetric, which is worth
+`vibe_control::DEFAULT_POSITION` — whose right leg is *mirrored*, not symmetric, which is worth
 reading rather than assuming.
 
 **Torque belongs on at startup.** `robotd` never enables torque when it starts, because a daemon

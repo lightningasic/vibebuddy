@@ -975,9 +975,9 @@ pub struct ManifestRobot {
 /// What this robot expects of a policy.
 ///
 /// A value rather than constants read in place, so the manifest check can be tested against
-/// expectations that are not this board's. The defaults come from `duck_ipc_proto`, which is
+/// expectations that are not this board's. The defaults come from `vibe_ipc_proto`, which is
 /// where the shape contract is published precisely because it is a contract with whoever
-/// publishes a policy — `duck_control` asserts at compile time that its own constants agree.
+/// publishes a policy — `vibe_control` asserts at compile time that its own constants agree.
 #[derive(Debug, Clone, Copy)]
 pub struct Expectations {
     pub obs_len: usize,

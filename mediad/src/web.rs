@@ -43,7 +43,7 @@ use anyhow::{Context, Result};
 use axum::Router;
 use axum::response::Html;
 use axum::routing::get;
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 
 /// The page as it sits in the source tree.
 ///

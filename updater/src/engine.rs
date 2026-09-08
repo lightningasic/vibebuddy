@@ -59,7 +59,7 @@ const HOOK_TIMEOUT: Duration = Duration::from_secs(120);
 /// Ten minutes is the point past which a stuck apt is more likely wedged than slow. Bounded, not
 /// unbounded, for the reason the ceiling exists at all.
 ///
-/// The number lives in `duck-ipc-proto` because it is a contract with every client, not a private
+/// The number lives in `vibe-ipc-proto` because it is a contract with every client, not a private
 /// budget: the phase notification arrives before the hook, so this is the longest an apply can go
 /// silent, and a client with a shorter idle budget calls a working update a dead robot.
 const PRE_INSTALL_HOOK_TIMEOUT: Duration =

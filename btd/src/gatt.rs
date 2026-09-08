@@ -1,9 +1,9 @@
 //! The GATT contract: the UUIDs a client must know.
 //!
 //! Platform-independent on purpose. These live here rather than in [`crate::bluez`] because they
-//! are part of the wire contract, exactly like the method names in `duck-ipc-proto` — the robot
+//! are part of the wire contract, exactly like the method names in `vibe-ipc-proto` — the robot
 //! serves them and every client must look for them, so a client that cannot compile for Linux
-//! still needs them. `examples/duckctl.rs`, which runs on a laptop, is the case that proves it.
+//! still needs them. `examples/vibectl.rs`, which runs on a laptop, is the case that proves it.
 //!
 //! Random v4 UUIDs rather than anything derived: they are ours, and they must not change once an
 //! app has shipped against them. Written out in full so that grepping for a value finds this
@@ -29,7 +29,7 @@ pub const SERVICE_UUID: uuid::Uuid = uuid::uuid!("6f5d2a10-3b47-4c8e-9a1f-2d7e8c
 /// subscribe to it for the answers.
 ///
 /// Chunked in both directions, delimited by the newline that already separates NDJSON messages —
-/// see [`crate::framing`], which is the module both the robot and `duckctl` use.
+/// see [`crate::framing`], which is the module both the robot and `vibectl` use.
 ///
 /// The read is part of the contract, not an optional nicety. It requires an authenticated
 /// encrypted link, so it is what makes a central pair *before* it writes — a subscribe needs no

@@ -22,7 +22,7 @@ path = "src/main.rs"
 [dependencies]
 anyhow = "1"
 clap = { workspace = true, features = ["derive"] }
-duck-ipc-proto = { path = "../duck-ipc-proto" }
+vibe-ipc-proto = { path = "../vibe-ipc-proto" }
 libc = "0.2"
 serde = { workspace = true }
 serde_json.workspace = true

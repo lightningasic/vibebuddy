@@ -65,7 +65,7 @@
 
 use std::collections::HashMap;
 
-use duck_ipc_proto::ChoraleBeacon;
+use vibe_ipc_proto::ChoraleBeacon;
 
 /// The company id chorale beacons ride under — the same one [`crate::adv`] uses, for the same
 /// reason: `0xFFFF` is the id the SIG reserves for testing and is the correct choice for a project
@@ -116,7 +116,7 @@ mod radio {
 
     use bluer::adv::Advertisement;
     use bluer::monitor::{Monitor, MonitorEvent, Pattern, RssiSamplingPeriod};
-    use duck_ipc_proto::ChoraleBeacon;
+    use vibe_ipc_proto::ChoraleBeacon;
     use futures::StreamExt;
     use tokio::sync::mpsc;
 
@@ -182,9 +182,9 @@ mod radio {
         let (read_half, mut write_half) = stream.into_split();
         let mut lines = BufReader::new(read_half).lines();
 
-        let request = duck_ipc_proto::Request::call(
-            duck_ipc_proto::Id::Number(1),
-            &duck_ipc_proto::Call::ChoraleSubscribe,
+        let request = vibe_ipc_proto::Request::call(
+            vibe_ipc_proto::Id::Number(1),
+            &vibe_ipc_proto::Call::ChoraleSubscribe,
         );
         let mut line = serde_json::to_string(&request).map_err(std::io::Error::other)?;
         line.push('\n');
@@ -202,10 +202,10 @@ mod radio {
             tokio::select! {
                 line = lines.next_line() => {
                     let Some(line) = line? else { return Ok(()) };
-                    let Ok(request) = serde_json::from_str::<duck_ipc_proto::Request>(&line) else {
+                    let Ok(request) = serde_json::from_str::<vibe_ipc_proto::Request>(&line) else {
                         continue;
                     };
-                    let Ok(duck_ipc_proto::Call::ChoraleBeaconSet(want)) = request.as_call() else {
+                    let Ok(vibe_ipc_proto::Call::ChoraleBeaconSet(want)) = request.as_call() else {
                         continue;
                     };
                     // Advertise what was asked for, and nothing when nothing was.
@@ -244,13 +244,13 @@ mod radio {
                     // An *age*, not a timestamp: the two daemons share a machine but not an epoch,
                     // and an age survives the trip down a socket in a way another process's clock
                     // reading does not.
-                    let heard = duck_ipc_proto::ChoraleHeard {
+                    let heard = vibe_ipc_proto::ChoraleHeard {
                         beacon: sighting.beacon,
                         from: sighting.from.to_string(),
                         age_us: sighting.at.elapsed().as_micros() as u64,
                     };
-                    let notify = duck_ipc_proto::Request::notify(
-                        &duck_ipc_proto::Call::ChoraleHeard(heard),
+                    let notify = vibe_ipc_proto::Request::notify(
+                        &vibe_ipc_proto::Call::ChoraleHeard(heard),
                     );
                     let mut line = serde_json::to_string(&notify).map_err(std::io::Error::other)?;
                     line.push('\n');

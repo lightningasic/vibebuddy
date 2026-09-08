@@ -7,7 +7,7 @@ not inferred.
 
 Slice 2 is merged, and the one problem the board found — **`ort` panicking instead of returning
 an error, which killed the control thread and made `robot.health` blame the wrong thing** — is
-fixed: `duck-control::policy::catching_ort_panics` turns it into a `PolicyError`, so it takes
+fixed: `vibe-control::policy::catching_ort_panics` turns it into a `PolicyError`, so it takes
 the existing "hold the pose and report why" path.
 
 **Both are now closed on hardware.** The fix was exercised on the board by pointing `robotd` at
@@ -106,14 +106,14 @@ Two things to know about it:
 
 ### What the tests cover, and what they do not
 
-Covered offline, in `duck-control` and `robotd`: a panic on the `ort` path becomes an error and
+Covered offline, in `vibe-control` and `robotd`: a panic on the `ort` path becomes an error and
 keeps its message, success passes through untouched, an unprintable payload still yields a
 reason, and — via `an_unloadable_policy_holds_the_pose_and_reports_why` — a policy that will not
 load leaves the loop ticking with the underlying cause in the health string.
 
 Not covered offline: a *real* `ort` panic travelling through the control loop. Reproducing it
 needs a wrong-version runtime, which is a board, and faking one inside `Policy::load` would mean
-shipping a fault-injection knob in `duck-control` to test three lines. The board check below is
+shipping a fault-injection knob in `vibe-control` to test three lines. The board check below is
 what closes it.
 
 ## Verifying on the board
@@ -162,7 +162,7 @@ rate — slice 2 adds inference to the same tick, and the slice 1 baseline above
 ## Deliberately not done
 
 - MuJoCo backend, and the remaining six skills.
-- Per-joint limits. `duck-control/src/safety.rs` clamps to actuator travel (±π), not per-joint
+- Per-joint limits. `vibe-control/src/safety.rs` clamps to actuator travel (±π), not per-joint
   ranges; that needs the alpha MJCF vendored.
 - Golden observation vectors from `microduck_brain` to pin the 61-D encoding against the
   prototype. The layout tests cover shape, not agreement with the original.

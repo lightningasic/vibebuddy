@@ -1,4 +1,4 @@
-//! `duckctl` — the robot from a laptop.
+//! `vibectl` — the robot from a laptop.
 //!
 //! The phone app's stand-in, and the only way to test `btd` against a real radio.
 //!
@@ -21,12 +21,12 @@
 //! it a real test of the protocol rather than a reimplementation that could agree with itself.
 //!
 //! ```text
-//! cargo run -p duckctl -- scan          # robots in range, and their addresses
-//! cargo run -p duckctl -- status
-//! cargo run -p duckctl -- wifi scan
-//! cargo run -p duckctl -- wifi connect "Pollen" --psk secret
-//! cargo run -p duckctl -- name "Ducky"
-//! cargo run -p duckctl -- call robot.health
+//! cargo run -p vibectl -- scan          # robots in range, and their addresses
+//! cargo run -p vibectl -- status
+//! cargo run -p vibectl -- wifi scan
+//! cargo run -p vibectl -- wifi connect "Pollen" --psk secret
+//! cargo run -p vibectl -- name "Ducky"
+//! cargo run -p vibectl -- call robot.health
 //! ```
 //!
 //! `DUCK_ROBOT` and `DUCK_PIN` in the environment are the defaults for `--name` and `--pin`, for
@@ -77,7 +77,7 @@ const SLOW_REPLY_TIMEOUT: Duration = Duration::from_secs(60);
 /// legitimately have, not the longest an update can take.
 ///
 /// **The gap is the pre-install hook's ceiling**, which is why this is derived from
-/// [`duck_ipc_proto::UPDATE_MAX_SILENCE_SECONDS`] rather than being a number here. That hook
+/// [`vibe_ipc_proto::UPDATE_MAX_SILENCE_SECONDS`] rather than being a number here. That hook
 /// installs what a release needs and a board may not have — ONNX Runtime, and around 100 MB of apt
 /// for `mediad`'s GStreamer stack on a board that never had it — and this was 180 seconds when that
 /// ceiling was two minutes. A budget below the ceiling reports a working update as a robot that
@@ -85,7 +85,7 @@ const SLOW_REPLY_TIMEOUT: Duration = Duration::from_secs(60);
 ///
 /// A minute of margin over it, for the reply that follows the hook.
 const UPDATE_IDLE_TIMEOUT: Duration =
-    Duration::from_secs(duck_ipc_proto::UPDATE_MAX_SILENCE_SECONDS + 60);
+    Duration::from_secs(vibe_ipc_proto::UPDATE_MAX_SILENCE_SECONDS + 60);
 /// `update watch` follows progress until interrupted, so it has no deadline worth naming. A day
 /// is an arbitrary bound that keeps the reply loop one shape instead of two.
 const FOLLOW_TIMEOUT: Duration = Duration::from_secs(24 * 3600);
@@ -247,7 +247,7 @@ const DEFAULT_PIN: &str = "000000";
 /// clap reads the variable with `env::var_os` and treats `DUCK_ROBOT=` as a value, so a variable
 /// exported in a shell profile could only be escaped by unsetting it — and the command that needs
 /// escaping is the one being typed now, on a bench that has somebody else's robot on it. Empty means
-/// unset, so `DUCK_ROBOT= duckctl scan` is the escape hatch, in the shape a shell already has.
+/// unset, so `DUCK_ROBOT= vibectl scan` is the escape hatch, in the shape a shell already has.
 ///
 /// **Provenance is carried rather than recomputed.** A default makes the tool *stricter*: it
 /// suppresses the already-connected fallback tier, and turns "the first robot found wins" into "no
@@ -311,7 +311,7 @@ impl Target {
         match &self.name {
             Some(name) if self.from_env => format!(
                 "\n\nNothing on this command line said {name:?} — `DUCK_ROBOT` in this shell's \
-                 environment did. `DUCK_ROBOT= duckctl …` ignores it for one command, and \
+                 environment did. `DUCK_ROBOT= vibectl …` ignores it for one command, and \
                  `unset DUCK_ROBOT` for the shell."
             ),
             _ => String::new(),
@@ -414,7 +414,7 @@ fn choose<T>(found: Vec<(T, String)>, target: &Target) -> Result<(T, String), St
 /// Deliver a resolved address the way the command asked for it.
 ///
 /// **`ip` prints the address and nothing else**, because the tool's split is diagnostics on stderr
-/// and data on stdout: `ssh radxa@$(duckctl ip)` only works if that is the whole of what stdout
+/// and data on stdout: `ssh radxa@$(vibectl ip)` only works if that is the whole of what stdout
 /// carries. Every note this command emits goes to stderr for the same reason.
 fn deliver(command: &Command, address: &str) -> Result<(), Box<dyn std::error::Error>> {
     match command {
@@ -431,7 +431,7 @@ fn deliver(command: &Command, address: &str) -> Result<(), Box<dyn std::error::E
             eprintln!("opening {url}");
             webbrowser::open(&url).map_err(|e| {
                 format!(
-                    "could not open a browser: {e}\nThe robot is at {url} — `duckctl open --print` \
+                    "could not open a browser: {e}\nThe robot is at {url} — `vibectl open --print` \
                      gives the URL without launching anything."
                 )
                 .into()
@@ -460,8 +460,8 @@ fn console_url(address: &str, port: u16) -> String {
 fn no_address(name: &str) -> String {
     format!(
         "{name} is in range and has no network address. Join it to a network over the same radio, \
-         which needs no network of its own:\n  duckctl --name '{name}' wifi connect <ssid> --psk \
-         <passphrase>\nThen `duckctl ip` again. `duckctl wifi status` says what the wifi is doing."
+         which needs no network of its own:\n  vibectl --name '{name}' wifi connect <ssid> --psk \
+         <passphrase>\nThen `vibectl ip` again. `vibectl wifi status` says what the wifi is doing."
     )
 }
 
@@ -613,7 +613,7 @@ async fn listing(seen: &[Seen], verbose: bool, target: &Target) -> String {
     if silent > 0 {
         out.push_str(&format!(
             "\n\n{silent} of them broadcast no address, which is a release from before `btd` \
-             advertised one. `duckctl wifi status` still reports it; updating the robot puts it \
+             advertised one. `vibectl wifi status` still reports it; updating the robot puts it \
              in this list."
         ));
     }
@@ -737,7 +737,7 @@ async fn step<T>(
 #[command(
     // Spelled out because clap would otherwise take it from the crate, and `--version` on the
     // installed binary answered `btd 0.5.1` — the daemon's name, for the laptop-side client.
-    name = "duckctl",
+    name = "vibectl",
     version,
     about = "Talk to a robot over BLE — the phone app's stand-in",
     long_about = "Finds a robot advertising the duck GATT service and speaks the same JSON-RPC \
@@ -752,7 +752,7 @@ struct Cli {
     /// board that has never been renamed answers to its derived default, `duck-7f3a`.
     ///
     /// `export DUCK_ROBOT=duck-c51b` in a shell profile makes that the robot every command talks
-    /// to. `DUCK_ROBOT= duckctl …` ignores it for one command.
+    /// to. `DUCK_ROBOT= vibectl …` ignores it for one command.
     //
     // The id is spelled out rather than derived from the field, because clap keys arguments by id
     // and the `name` subcommand has a positional argument that derives the same one. With both
@@ -789,7 +789,7 @@ enum Command {
     Scan,
     /// The robot's IPv4 address on stdout, and nothing else.
     ///
-    /// `ssh radxa@$(duckctl ip)`. Read from the advertisement `btd` already broadcasts, so no
+    /// `ssh radxa@$(vibectl ip)`. Read from the advertisement `btd` already broadcasts, so no
     /// connection is made, no bond is needed and no PIN can be wrong — and it costs about a second
     /// rather than the tens `wifi status` does. A robot that is bonded to this machine and has
     /// stopped advertising the service to it is asked over BLE instead, which is slower and always
@@ -806,7 +806,7 @@ enum Command {
         /// The console's port, for a robot started with a non-default `--web-port`.
         //
         // The same default as `mediad --web-port`, and the reason this command exists rather than a
-        // documented `open "http://$(duckctl ip):8080"`: the port belongs in one place that nobody
+        // documented `open "http://$(vibectl ip):8080"`: the port belongs in one place that nobody
         // has to read.
         #[arg(long, default_value_t = 8080)]
         port: u16,
@@ -841,7 +841,7 @@ enum Command {
     /// first, or it answers saying so. It needs no pad *input* though — the deadman zeroes the
     /// twist by itself, so a robot nobody is steering stands still and does the thing.
     ///
-    /// `duckctl policy list` names the skills this robot has. They are config, so the list
+    /// `vibectl policy list` names the skills this robot has. They are config, so the list
     /// differs between robots and an unknown name is refused with the real one.
     Do {
         #[arg(value_name = "SKILL")]
@@ -902,7 +902,7 @@ enum Pad {
     },
 }
 
-/// `duckctl account …` — the account half of `robotctl account`, over the radio.
+/// `vibectl account …` — the account half of `robotctl account`, over the radio.
 #[derive(Subcommand, Debug)]
 enum Account {
     /// Start a login, and open the page to approve it on.
@@ -1057,7 +1057,7 @@ enum Update {
         component: String,
         /// Exact version to install. Omit for whatever the source calls latest.
         #[arg(long, conflicts_with = "git_ref")]
-        version: Option<duck_ipc_proto::semver::Version>,
+        version: Option<vibe_ipc_proto::semver::Version>,
         /// Install what a branch last built, e.g. `--ref my-branch`.
         ///
         /// A dev build, so a robot only accepts one if the team key is in its trusted set and
@@ -1101,7 +1101,7 @@ enum Update {
     /// `versions` above lists what there is to choose from. Gated like an apply, so a selection
     /// that does not come up is reverted.
     Select {
-        version: duck_ipc_proto::semver::Version,
+        version: vibe_ipc_proto::semver::Version,
         #[arg(long, default_value = "daemon")]
         component: String,
     },
@@ -1300,7 +1300,7 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
             // updating makes it fast.
             Ok((Address::Unsaid, name)) => eprintln!(
                 "{name} advertises no address — a release from before robots broadcast one. Asking \
-                 it over Bluetooth instead, which takes longer; `duckctl update apply` makes this \
+                 it over Bluetooth instead, which takes longer; `vibectl update apply` makes this \
                  fast."
             ),
             // Nothing advertised the service, or nothing answering to the name did. Both are the
@@ -1408,7 +1408,7 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
             if cli.verbose {
                 eprintln!("robot speaks API v{theirs}");
             }
-            if u32::from(theirs) != duck_ipc_proto::API_VERSION {
+            if u32::from(theirs) != vibe_ipc_proto::API_VERSION {
                 warn_about_skew(theirs);
             }
         }
@@ -1506,7 +1506,7 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
 
             // `ip` and `open` asked `net.status` for one field, so the reply is not the answer:
             // stdout carries an address or a URL, or nothing at all. Before the JSON is printed,
-            // because printing it would be the bug — `$(duckctl ip)` would carry the whole object.
+            // because printing it would be the bug — `$(vibectl ip)` would carry the whole object.
             if resolving {
                 let _ = peripheral.disconnect().await;
                 if let Some(error) = value.get("error") {
@@ -1615,7 +1615,7 @@ fn dropped(command: &Command) -> String {
 
     let next = if restarting {
         "An update restarts the robot's daemons, `btd` among them, so this is as likely to be the \
-         update finishing as failing. Reconnect and run `duckctl update status`: \
+         update finishing as failing. Reconnect and run `vibectl update status`: \
          `last_attempt` carries the outcome of what ran."
     } else {
         "Reconnect and try again. Anything the robot had already started — an update in \
@@ -1633,7 +1633,7 @@ fn silence(idle: Duration) -> String {
     format!(
         "nothing from the robot for {idle:?}, so it has stopped answering. Anything it had \
              already started — an update in particular — carries on without this connection: \
-             reconnect and run `duckctl update status`."
+             reconnect and run `vibectl update status`."
     )
 }
 
@@ -1738,7 +1738,7 @@ fn warn_about_skew(theirs: u8) {
         "warning: the robot speaks API v{theirs} and this client speaks v{}, so they were not \
          built together. Carrying on: most calls do not care, and a call that does will say so. \
          Install matching versions before believing anything surprising.",
-        duck_ipc_proto::API_VERSION
+        vibe_ipc_proto::API_VERSION
     );
 }
 
@@ -1764,7 +1764,7 @@ fn triple(spec: &str) -> Result<[f64; 3], String> {
 }
 
 fn request_line(command: &Command) -> Result<(String, Duration), Box<dyn std::error::Error>> {
-    use duck_ipc_proto as proto;
+    use vibe_ipc_proto as proto;
 
     let (method, params, timeout) = match command {
         // `scan` returns from `run` as soon as the discovery loop ends, so it never reaches a
@@ -1777,7 +1777,7 @@ fn request_line(command: &Command) -> Result<(String, Duration), Box<dyn std::er
         Command::Ip | Command::Open { .. } => ("net.status", serde_json::json!({}), REPLY_TIMEOUT),
         Command::Version => (
             "hello",
-            serde_json::json!({ "api_version": duck_ipc_proto::API_VERSION }),
+            serde_json::json!({ "api_version": vibe_ipc_proto::API_VERSION }),
             REPLY_TIMEOUT,
         ),
         Command::Update(update) => return update_request_line(update),
@@ -1964,13 +1964,13 @@ fn request_line(command: &Command) -> Result<(String, Duration), Box<dyn std::er
     Ok((serde_json::to_string(&request)?, timeout))
 }
 
-/// The update commands, built from `duck_ipc_proto`'s own types rather than as hand-written JSON.
+/// The update commands, built from `vibe_ipc_proto`'s own types rather than as hand-written JSON.
 ///
 /// `update.apply`'s target is an externally tagged enum — `"latest"`, `{"exact":"0.5.1"}`,
 /// `{"ref":"my-branch"}` — and getting that shape wrong by hand is a `PARSE_ERROR` from the robot
 /// with no clue in it. Serialising the type the daemon deserialises cannot be wrong.
 fn update_request_line(update: &Update) -> Result<(String, Duration), Box<dyn std::error::Error>> {
-    use duck_ipc_proto as proto;
+    use vibe_ipc_proto as proto;
 
     let component = |name: &str| proto::ComponentId::new(name.to_owned());
     let (method, params, timeout) = match update {
@@ -2061,7 +2061,7 @@ fn update_request_line(update: &Update) -> Result<(String, Duration), Box<dyn st
 
 /// One progress notification, as a line for a person.
 ///
-/// Progress goes to stderr like everything that is not an answer, so `duckctl … > reply.json`
+/// Progress goes to stderr like everything that is not an answer, so `vibectl … > reply.json`
 /// keeps the two apart — and printing it as pretty JSON, which is what this used to do, put a
 /// dozen lines of punctuation on stdout for every percent of a download.
 fn progress_line(params: &serde_json::Value) -> String {
@@ -2095,7 +2095,7 @@ fn progress_line(params: &serde_json::Value) -> String {
 /// open a browser by yourself — and it is about a phone: the browser replaces the only screen and
 /// backgrounds the app, so a code shown a moment earlier is gone before it is read. A terminal
 /// does not have that problem, the code stays in the scrollback, and this tool already launches a
-/// browser for `duckctl open`. So it opens — after printing, so a failure to open leaves the code
+/// browser for `vibectl open`. So it opens — after printing, so a failure to open leaves the code
 /// on screen rather than an error where the instructions should have been.
 ///
 /// It opens `verification_uri_complete`, which for Hugging Face is the plain device page: they
@@ -2116,7 +2116,7 @@ fn account_note(command: &Command, reply: &serde_json::Value) -> Option<String> 
     let mut note = format!(
         "\nOpen {uri} and enter this code:\n\n    {code}\n\n\
          You have about {minutes} minutes. The robot is doing the waiting, so this tool can \
-         disconnect now — `duckctl account status` says whether it worked."
+         disconnect now — `vibectl account status` says whether it worked."
     );
 
     // Not a terminal means a script, and a script that opens a browser window on whoever runs it
@@ -2133,7 +2133,7 @@ fn account_note(command: &Command, reply: &serde_json::Value) -> Option<String> 
         Ok(()) => note.push_str(&format!("\n\nOpened {complete}")),
         // A warning, never a failure: the login has started, the code is valid for minutes, and
         // the terminal above says everything needed to finish it by hand. This is the opposite of
-        // `duckctl open`, where opening the browser *is* the command and failing it is the result.
+        // `vibectl open`, where opening the browser *is* the command and failing it is the result.
         Err(e) => note.push_str(&format!(
             "\n\nCould not open a browser ({e}) — the URL and code above still work. \
              `--no-open` skips this."
@@ -2163,7 +2163,7 @@ fn restart_note(command: &Command, reply: &serde_json::Value) -> Option<&'static
         "applied" | "rolled_back" => Some(
             "note: the robot restarts its daemons now, and `btd` about five seconds after this \
              reply — so this connection drops. That is the update working. Reconnect and run \
-             `duckctl update status`: `last_attempt` carries the outcome of what just ran.",
+             `vibectl update status`: `last_attempt` carries the outcome of what just ran.",
         ),
         _ => None,
     }
@@ -2370,7 +2370,7 @@ mod tests {
     /// found nothing, and listed the robot it was talking to seconds earlier as merely in range.
     #[test]
     fn a_rename_still_selects_the_robot_by_the_name_it_has_now() {
-        let cli = Cli::try_parse_from(["duckctl", "--name", "duck-c51b", "name", "leduckpierre"])
+        let cli = Cli::try_parse_from(["vibectl", "--name", "duck-c51b", "name", "leduckpierre"])
             .expect("the rename form parses");
 
         assert_eq!(cli.name.as_deref(), Some("duck-c51b"), "which robot");
@@ -2388,13 +2388,13 @@ mod tests {
     /// `account login` sends `force` as the robot's route table expects it.
     #[test]
     fn a_forced_login_says_so_on_the_wire() {
-        let cli = Cli::try_parse_from(["duckctl", "account", "login", "--force"])
+        let cli = Cli::try_parse_from(["vibectl", "account", "login", "--force"])
             .expect("the login form parses");
         let (line, _) = request_line(&cli.command).expect("a request");
         assert!(line.contains(r#""method":"account.login""#), "{line}");
         assert!(line.contains(r#""force":true"#), "{line}");
 
-        let cli = Cli::try_parse_from(["duckctl", "account", "login"]).expect("parses");
+        let cli = Cli::try_parse_from(["vibectl", "account", "login"]).expect("parses");
         let (line, _) = request_line(&cli.command).expect("a request");
         assert!(line.contains(r#""force":false"#), "{line}");
     }
@@ -2407,7 +2407,7 @@ mod tests {
     #[test]
     fn a_login_note_carries_the_code_without_opening_anything() {
         let cli =
-            Cli::try_parse_from(["duckctl", "account", "login", "--no-open"]).expect("parses");
+            Cli::try_parse_from(["vibectl", "account", "login", "--no-open"]).expect("parses");
         let reply = serde_json::json!({
             "jsonrpc": "2.0",
             "id": 1,
@@ -2437,7 +2437,7 @@ mod tests {
             "--no-open must not launch a browser: {note}"
         );
         assert!(
-            note.contains("duckctl account status"),
+            note.contains("vibectl account status"),
             "the note has to say how to find out whether it worked: {note}"
         );
     }
@@ -2447,9 +2447,9 @@ mod tests {
     fn only_a_login_gets_the_code_note() {
         let reply = serde_json::json!({ "result": { "account": null } });
         for args in [
-            vec!["duckctl", "account", "status"],
-            vec!["duckctl", "account", "logout"],
-            vec!["duckctl", "info"],
+            vec!["vibectl", "account", "status"],
+            vec!["vibectl", "account", "logout"],
+            vec!["vibectl", "info"],
         ] {
             let cli = Cli::try_parse_from(&args).expect("parses");
             assert!(
@@ -2498,7 +2498,7 @@ mod tests {
     #[test]
     fn an_empty_value_is_no_default_at_all() {
         let escaped = Target::new(None, Some(String::new()));
-        assert_eq!(escaped.wanted(), None, "`DUCK_ROBOT= duckctl …`");
+        assert_eq!(escaped.wanted(), None, "`DUCK_ROBOT= vibectl …`");
         assert!(
             escaped.provenance().is_empty(),
             "no name, nothing to explain"
@@ -2584,7 +2584,7 @@ mod tests {
 
     /// The whole point of the change: a listing says where to reach the robot, with no connection.
     /// The one thing `open` adds over `ip`, and the reason it is a command rather than a documented
-    /// `open "http://$(duckctl ip):8080"`: the port has one home.
+    /// `open "http://$(vibectl ip):8080"`: the port has one home.
     #[test]
     fn the_console_url_is_the_address_and_the_port() {
         assert_eq!(
@@ -2629,7 +2629,7 @@ mod tests {
     /// `--print` and `--port` are the two things `open` takes, and neither is positional.
     #[test]
     fn open_takes_a_port_and_can_print_instead() {
-        let cli = Cli::try_parse_from(["duckctl", "open", "--print", "--port", "9000"])
+        let cli = Cli::try_parse_from(["vibectl", "open", "--print", "--port", "9000"])
             .expect("open --print --port parses");
         assert!(matches!(
             cli.command,
@@ -2639,7 +2639,7 @@ mod tests {
             }
         ));
 
-        let cli = Cli::try_parse_from(["duckctl", "open"]).expect("open parses on its own");
+        let cli = Cli::try_parse_from(["vibectl", "open"]).expect("open parses on its own");
         assert!(matches!(
             cli.command,
             Command::Open {
@@ -2729,7 +2729,7 @@ mod tests {
     #[test]
     fn the_hub_commands_wait_as_long_as_they_need() {
         let budget = |args: &[&str]| {
-            let cli = Cli::try_parse_from([&["duckctl"], args].concat()).expect("parses");
+            let cli = Cli::try_parse_from([&["vibectl"], args].concat()).expect("parses");
             request_line(&cli.command).expect("a request").1
         };
 
@@ -2752,13 +2752,13 @@ mod tests {
     #[test]
     fn the_hub_commands_omit_what_was_not_asked_for() {
         let wire = |args: &[&str]| {
-            let cli = Cli::try_parse_from([&["duckctl"], args].concat()).expect("parses");
+            let cli = Cli::try_parse_from([&["vibectl"], args].concat()).expect("parses");
             request_line(&cli.command).expect("a request").0
         };
 
         let bare = wire(&["policy", "update"]);
         assert!(
-            bare.contains(duck_ipc_proto::method::POLICY_INSTALL),
+            bare.contains(vibe_ipc_proto::method::POLICY_INSTALL),
             "{bare}"
         );
         assert!(!bare.contains("version"), "{bare}");
@@ -2782,7 +2782,7 @@ mod tests {
     #[test]
     fn resetting_a_slot_is_loading_it_with_no_path() {
         let wire = |args: &[&str]| {
-            let mut argv = vec!["duckctl", "policy"];
+            let mut argv = vec!["vibectl", "policy"];
             argv.extend_from_slice(args);
             let cli = Cli::try_parse_from(argv).expect("parses");
             request_line(&cli.command).expect("a request").0
@@ -2810,17 +2810,17 @@ mod tests {
     #[test]
     fn the_policy_commands_name_the_methods_the_daemon_serves() {
         let wire = |args: &[&str]| {
-            let cli = Cli::try_parse_from([&["duckctl"], args].concat()).expect("parses");
+            let cli = Cli::try_parse_from([&["vibectl"], args].concat()).expect("parses");
             request_line(&cli.command).expect("a request").0
         };
 
-        assert!(wire(&["policy", "list"]).contains(duck_ipc_proto::method::ROBOT_POLICIES));
+        assert!(wire(&["policy", "list"]).contains(vibe_ipc_proto::method::ROBOT_POLICIES));
         assert!(
-            wire(&["policy", "reload"]).contains(duck_ipc_proto::method::ROBOT_RELOAD_POLICIES)
+            wire(&["policy", "reload"]).contains(vibe_ipc_proto::method::ROBOT_RELOAD_POLICIES)
         );
 
         let run = wire(&["do", "polite-bow"]);
-        assert!(run.contains(duck_ipc_proto::method::ROBOT_DO), "{run}");
+        assert!(run.contains(vibe_ipc_proto::method::ROBOT_DO), "{run}");
         assert!(run.contains(r#""skill":"polite-bow""#), "{run}");
     }
 
@@ -2829,7 +2829,7 @@ mod tests {
     #[test]
     fn swapping_a_policy_waits_as_long_as_a_slow_call() {
         let budget = |args: &[&str]| {
-            let cli = Cli::try_parse_from([&["duckctl"], args].concat()).expect("parses");
+            let cli = Cli::try_parse_from([&["vibectl"], args].concat()).expect("parses");
             request_line(&cli.command).expect("a request").1
         };
 
@@ -2852,7 +2852,7 @@ mod tests {
     #[test]
     fn apply_asks_for_the_target_the_flags_named() {
         let wire = |args: &[&str]| {
-            let mut argv = vec!["duckctl", "update", "apply"];
+            let mut argv = vec!["vibectl", "update", "apply"];
             argv.extend_from_slice(args);
             let cli = Cli::try_parse_from(argv).expect("parses");
             request_line(&cli.command).expect("a request").0
@@ -2887,7 +2887,7 @@ mod tests {
     fn a_ref_and_a_version_cannot_both_be_named() {
         assert!(
             Cli::try_parse_from([
-                "duckctl",
+                "vibectl",
                 "update",
                 "apply",
                 "--ref",
@@ -2912,7 +2912,7 @@ mod tests {
             (vec!["rollback"], "update.rollback"),
             (vec!["select", "0.5.1"], "update.select"),
         ] {
-            let mut argv = vec!["duckctl", "update"];
+            let mut argv = vec!["vibectl", "update"];
             argv.extend_from_slice(&args);
             let cli = Cli::try_parse_from(argv).expect("parses");
             let (line, _) = request_line(&cli.command).expect("a request");
@@ -2923,7 +2923,7 @@ mod tests {
     /// `select` sends the version as a version, and defaults the component like the rest.
     #[test]
     fn select_names_a_version_and_defaults_the_component() {
-        let cli = Cli::try_parse_from(["duckctl", "update", "select", "0.5.1"]).expect("parses");
+        let cli = Cli::try_parse_from(["vibectl", "update", "select", "0.5.1"]).expect("parses");
         let (line, _) = request_line(&cli.command).expect("a request");
         assert!(line.contains(r#""version":"0.5.1""#), "{line}");
         assert!(line.contains(r#""component":"daemon""#), "{line}");
@@ -2935,7 +2935,7 @@ mod tests {
     #[test]
     fn an_update_is_given_the_longest_silence() {
         let budget = |args: &[&str]| {
-            let mut argv = vec!["duckctl"];
+            let mut argv = vec!["vibectl"];
             argv.extend_from_slice(args);
             let cli = Cli::try_parse_from(argv).expect("parses");
             request_line(&cli.command).expect("a request").1
@@ -2984,7 +2984,7 @@ mod tests {
     /// update, so it has to be trustworthy.
     #[test]
     fn a_restart_is_announced_only_when_the_release_changed() {
-        let apply = Cli::try_parse_from(["duckctl", "update", "apply"])
+        let apply = Cli::try_parse_from(["vibectl", "update", "apply"])
             .expect("parses")
             .command;
 
@@ -3007,13 +3007,13 @@ mod tests {
         assert!(restart_note(&apply, &dry_run).is_none());
 
         // And nothing else announces one, however it answered.
-        let status = Cli::try_parse_from(["duckctl", "update", "status"])
+        let status = Cli::try_parse_from(["vibectl", "update", "status"])
             .expect("parses")
             .command;
         assert!(restart_note(&status, &applied).is_none());
 
         // Nor a component whose release does not ship `btd`.
-        let model = Cli::try_parse_from(["duckctl", "update", "apply", "--component", "model"])
+        let model = Cli::try_parse_from(["vibectl", "update", "apply", "--component", "model"])
             .expect("parses")
             .command;
         assert!(restart_note(&model, &applied).is_none());
@@ -3028,7 +3028,7 @@ mod tests {
     #[test]
     fn a_drop_during_an_apply_points_at_the_record() {
         let note = |argv: &[&str]| {
-            let mut full = vec!["duckctl"];
+            let mut full = vec!["vibectl"];
             full.extend_from_slice(argv);
             dropped(&Cli::try_parse_from(full).expect("parses").command)
         };

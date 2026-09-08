@@ -13,7 +13,7 @@
 //!
 //! ## What it reads
 //!
-//! Each daemon publishes its own identity at startup — see [`duck_ipc_proto::Identity`] — so this
+//! Each daemon publishes its own identity at startup — see [`vibe_ipc_proto::Identity`] — so this
 //! reads a file rather than interrogating a process. A daemon that published nothing is *not* treated
 //! as stale: it is either stopped, or too old to publish, and restarting a robot's daemons because
 //! they are old is a decision nobody asked for. The next update makes them able to answer.
@@ -45,7 +45,7 @@
 //! `apply` on a robot that looks wrong schedules the restart this module refuses to perform. Once,
 //! on a request, which is not the loop guarded against above.
 
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 
 /// What the check found for one unit.
 #[derive(Debug, Clone, PartialEq, Eq)]

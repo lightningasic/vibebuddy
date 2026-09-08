@@ -285,7 +285,7 @@ than a new mechanism.
 ## 5. The control channel is a pipe to the existing API
 
 Frames on `control` are **JSON-RPC 2.0, one object per line**, which is what
-[`duck-ipc-proto`](../../duck-ipc-proto/src/lib.rs) already defines and what `robotctl` and `btd`
+[`vibe-ipc-proto`](../../vibe-ipc-proto/src/lib.rs) already defines and what `robotctl` and `btd`
 already speak. Nothing new is invented: `mediad` routes a call to the unix socket of the service
 that owns it and pumps replies back.
 
@@ -333,7 +333,7 @@ properties that make it hold, and `mediad::route` carries the short version.
 subscription is a stream of notifications on an open connection, and every one has to reach the
 client. Correlating replies to requests would break exactly that. `mediad` inherits the same rule,
 which also means **no per-method work in `mediad` when a method is added** — the pipe stays dumb,
-and `duck-ipc-proto` stays the only place a method is defined.
+and `vibe-ipc-proto` stays the only place a method is defined.
 
 The lane concept transfers too, and it is easy to assume it will not. Every daemon serves one
 request at a time per connection, so `update.subscribe` followed by anything else on the same
@@ -447,7 +447,7 @@ over a remote session is useful and costs nothing.
 Two things have to change for the mutations, and both are small and specific:
 
 - **The client has to survive the restart.** The protocol already supports it: progress is pushed
-  as a JSON-RPC *notification*, which `duck-ipc-proto` documents precisely so a client that
+  as a JSON-RPC *notification*, which `vibe-ipc-proto` documents precisely so a client that
   reconnects mid-update can resubscribe and keep receiving them. So the work is a client that
   reconnects and re-subscribes, not a change to the wire format.
 - **`RobotRemoteSessionActive` has to get more specific.**

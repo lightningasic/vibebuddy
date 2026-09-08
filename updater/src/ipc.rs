@@ -1067,8 +1067,8 @@ impl Server {
 ///
 /// So the pair of versions goes to the journal, where it turns a later shape error from a puzzle into
 /// a diagnosis, and `HelloResult::api_version` hands the client the same fact so it can say so
-/// itself. `duckctl` reached this conclusion from the far end of the link first — see
-/// `duckctl/src/main.rs`.
+/// itself. `vibectl` reached this conclusion from the far end of the link first — see
+/// `vibectl/src/main.rs`.
 fn note_version_skew(client: u32) {
     tracing::warn!(
         client,

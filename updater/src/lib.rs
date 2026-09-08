@@ -21,7 +21,7 @@
 //!   add noise without buying anything.
 //! - **No premature crate splitting.** This was one crate with two binaries until a
 //!   second service needed the wire types; then — and only then — [`proto`] moved out
-//!   into [`duck_ipc_proto`]. `robotd` and `robotctl` depend on that, not on this crate,
+//!   into [`vibe_ipc_proto`]. `robotd` and `robotctl` depend on that, not on this crate,
 //!   so nothing on the recovery path inherits the engine's http/tar/zstd/crypto tree.
 //!   `updaterd` remains this crate's only binary.
 //! - **No OS/kernel updates.** Application-level only; see
@@ -44,9 +44,9 @@ pub mod orphan;
 pub mod policy;
 pub mod preflight;
 pub mod reconcile;
-/// The IPC contract, re-exported from the [`duck_ipc_proto`] crate. Re-exported under this
+/// The IPC contract, re-exported from the [`vibe_ipc_proto`] crate. Re-exported under this
 /// path so the engine's own code and `updater::proto::*` users need not care where it lives.
-pub use duck_ipc_proto as proto;
+pub use vibe_ipc_proto as proto;
 pub mod robot;
 pub mod source;
 mod spawn;

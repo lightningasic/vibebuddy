@@ -12,7 +12,7 @@ use configd::pad::{FakePads, Pads};
 use configd::power;
 use configd::store::Store;
 use configd::{pad, units};
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::{UnixListener, UnixStream};
 
@@ -180,7 +180,7 @@ async fn main() -> ExitCode {
         .init();
 
     let args = Args::parse();
-    duck_ipc_proto::log_startup_identity!("configd");
+    vibe_ipc_proto::log_startup_identity!("configd");
 
     // Neither backend is a reason to refuse to start. `configd` answers `net.*`, `pad.*` and
     // `system.*`, and `system.pin` is where `btd` gets the PIN a phone authenticates with — so a
@@ -428,7 +428,7 @@ async fn dispatch(
         proto::Call::NetScan => reply(id, service.net.scan().await),
         proto::Call::NetConnect(params) => {
             // `params` redacts the key in its own Debug, which is what makes logging the request
-            // safe. See `NetConnectParams` in duck-ipc-proto.
+            // safe. See `NetConnectParams` in vibe-ipc-proto.
             tracing::info!(?params, "joining a network");
             reply(
                 id,

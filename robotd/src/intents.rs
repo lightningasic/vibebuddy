@@ -37,7 +37,7 @@ const POWER_RELAX: u8 = 2;
 use std::time::{Duration, Instant};
 
 use arc_swap::{ArcSwap, ArcSwapOption};
-use duck_control::obs::{BodyPose, Command};
+use vibe_control::obs::{BodyPose, Command};
 
 /// A value and when it arrived.
 #[derive(Debug, Clone, Copy)]
@@ -168,7 +168,7 @@ pub struct Intents {
     /// for a specific reason: the other intents are *levels*, where a value missed is a value
     /// superseded. A beacon is an *event* carrying an arrival time, and a beat dropped by
     /// last-writer-wins is a beat the phase lock never gets to average.
-    chorale_heard: std::sync::Mutex<Vec<duck_ipc_proto::ChoraleHeard>>,
+    chorale_heard: std::sync::Mutex<Vec<vibe_ipc_proto::ChoraleHeard>>,
     /// Pending skill requests, a bitmask taken (swapped to zero) once per tick. A mask
     /// rather than one slot so two different buttons in the same tick both arrive.
     skills: std::sync::atomic::AtomicU32,
@@ -362,8 +362,8 @@ impl Intents {
     /// not an event, so it lands in its stamped slot instead of the mask (a bare
     /// `tag: wheee` with no `hold` is a hold that immediately starts decaying: one short
     /// ride).
-    pub fn request_sound(&self, params: duck_ipc_proto::SoundParams) {
-        use duck_ipc_proto::SoundTag;
+    pub fn request_sound(&self, params: vibe_ipc_proto::SoundParams) {
+        use vibe_ipc_proto::SoundTag;
         if params.tag == SoundTag::Wheee {
             self.wheee.store(Arc::new(Stamped {
                 value: params.hold.unwrap_or(true),
@@ -377,8 +377,8 @@ impl Intents {
     }
 
     /// Take the pending one-shot sounds, leaving none. Once per tick.
-    pub fn take_sounds(&self) -> Vec<duck_ipc_proto::SoundTag> {
-        use duck_ipc_proto::SoundTag;
+    pub fn take_sounds(&self) -> Vec<vibe_ipc_proto::SoundTag> {
+        use vibe_ipc_proto::SoundTag;
         let bits = self.sounds.swap(0, std::sync::atomic::Ordering::Relaxed);
         [
             SoundTag::Alarm,
@@ -426,7 +426,7 @@ impl Intents {
     /// Ask for a policy change: one slot to a file, one slot back to its default, or all of
     /// them back to theirs.
     ///
-    /// The caller has already validated the file — see `duck_control::policy::validate` — so
+    /// The caller has already validated the file — see `vibe_control::policy::validate` — so
     /// reaching here means the load is expected to succeed. It can still fail at the home pose
     /// seconds later, which is why the loop keeps the controller it has until the new one is
     /// built.
@@ -526,7 +526,7 @@ impl Intents {
 
     /// A beacon `btd` heard. Queued rather than latched: two ducks' beacons in one tick are two
     /// observations, and a beat lost to last-writer-wins is a beat the phase lock never sees.
-    pub fn heard_chorale(&self, heard: duck_ipc_proto::ChoraleHeard) {
+    pub fn heard_chorale(&self, heard: vibe_ipc_proto::ChoraleHeard) {
         let mut queue = self.chorale_heard.lock().expect("not poisoned");
         // Bounded: the control loop drains this every tick, so a backlog means the loop is not
         // running — in which case the newest beacons are the only ones worth having.
@@ -537,7 +537,7 @@ impl Intents {
     }
 
     /// Everything heard since the last tick.
-    pub fn take_chorale_heard(&self) -> Vec<duck_ipc_proto::ChoraleHeard> {
+    pub fn take_chorale_heard(&self) -> Vec<vibe_ipc_proto::ChoraleHeard> {
         std::mem::take(&mut *self.chorale_heard.lock().expect("not poisoned"))
     }
 
@@ -597,7 +597,7 @@ mod tests {
     /// ride, the other plays it out.
     #[test]
     fn a_stale_hold_reads_as_decayed_not_released() {
-        use duck_ipc_proto::{SoundParams, SoundTag};
+        use vibe_ipc_proto::{SoundParams, SoundTag};
         let intents = Intents::new();
         assert_eq!(
             intents.wheee_hold(),

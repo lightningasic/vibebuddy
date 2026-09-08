@@ -85,7 +85,7 @@ use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
 use clap::Parser;
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 use gilrs::{Axis, Button, Gilrs};
 
 #[cfg(target_os = "linux")]
@@ -260,7 +260,7 @@ fn main() -> std::process::ExitCode {
     // Before anything that can fail, and before the gamepad subsystem especially: `padd` was the
     // one daemon whose journal could not say which build was running, which came up while chasing
     // exactly that question across all five.
-    duck_ipc_proto::log_startup_identity!("padd");
+    vibe_ipc_proto::log_startup_identity!("padd");
 
     let mut gilrs = match Gilrs::new() {
         Ok(gilrs) => gilrs,

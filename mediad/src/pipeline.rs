@@ -85,7 +85,7 @@
 use std::sync::{Arc, Mutex};
 
 use anyhow::{Context, Result, anyhow, bail};
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 use gstreamer as gst;
 use gstreamer::prelude::*;
 use gstreamer_app as gst_app;

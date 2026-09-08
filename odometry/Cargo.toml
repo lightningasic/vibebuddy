@@ -14,5 +14,5 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-duck-ipc-proto = { path = "../duck-ipc-proto" }
+vibe-ipc-proto = { path = "../vibe-ipc-proto" }
 kinematics = { path = "../kinematics" }

@@ -21,7 +21,7 @@ use std::sync::mpsc::{self, Receiver, RecvTimeoutError, TryRecvError};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 use ratatui::DefaultTerminal;
 use ratatui::crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
 use ratatui::layout::{Alignment, Constraint, Layout};
@@ -129,7 +129,7 @@ const HEALTH_STALE: Duration = Duration::from_secs(6);
 
 /// Battery percentages the reading is coloured at.
 ///
-/// Not display taste: 0% is `duck_control::model::BATTERY_EMPTY_V`, which is the voltage at
+/// Not display taste: 0% is `vibe_control::model::BATTERY_EMPTY_V`, which is the voltage at
 /// which `robotd` sits the robot down and cuts power. The percentage is a countdown to that, so
 /// the last fifth of it is worth seeing from across a room.
 const BATTERY_LOW_PCT: f64 = 30.0;
@@ -701,7 +701,7 @@ const TOF_RAMP: [(f32, u8); 7] = [
 /// a crate that compiles two C drivers to render a grid would be a poor trade.
 mod tof_zone {
     /// Mirrors `tof::Zone`. The interpretation rules live in the protocol's
-    /// documentation of [`duck_ipc_proto::TofFrame`], and both ends implement
+    /// documentation of [`vibe_ipc_proto::TofFrame`], and both ends implement
     /// them from there.
     #[derive(Debug, Clone, Copy, PartialEq)]
     pub enum Zone {
@@ -1509,7 +1509,7 @@ impl View {
     /// Everything is spelled out — axis names, units, the sense of each direction — because
     /// the previous version wrote `req [+0.30 +0.00 +0.10]` and a reader had to already know
     /// that a velocity twist is `vx, vy, vyaw`, that the numbers are m/s and rad/s, and which
-    /// way positive turns. That convention is written down in `duck-ipc-proto`, and a display
+    /// way positive turns. That convention is written down in `vibe-ipc-proto`, and a display
     /// that omits it makes every reader re-derive it — which is the exact failure the protocol
     /// docs name as the reason the prototype grew five sign-flip flags.
     fn render_header(
@@ -2053,7 +2053,7 @@ impl View {
     /// and adding a field to it would break `monitor | grep` for everyone. `robotctl health
     /// --json` carries the same numbers for anything that wants to read them.
     fn camera_caption() -> Vec<Span<'static>> {
-        let Some(camera) = duck_ipc_proto::read_camera_stats() else {
+        let Some(camera) = vibe_ipc_proto::read_camera_stats() else {
             // Silent rather than "camera unknown": a board with no camera runs no `mediad`, and a
             // caption implying a fault on every one of them is worse than no caption. Whether the
             // daemon is running belongs to `robotctl health`, which says so in words.
@@ -2720,7 +2720,7 @@ fn joint_rows(state: &proto::RobotState) -> usize {
 
 /// Say what a limit *means*, not just what it is called.
 ///
-/// The wire carries `duck_control::safety::Limit`'s names — `deadman`, `joint_range`,
+/// The wire carries `vibe_control::safety::Limit`'s names — `deadman`, `joint_range`,
 /// `not_finite`, `fallen` — and each one is a token whose meaning lives in a doc comment in
 /// another crate. Anything unrecognised is passed through verbatim: a `robotd` newer than this
 /// `robotctl` may have limits this build has never heard of, and printing the raw name is
@@ -2985,7 +2985,7 @@ mod tests {
 
     /// Every number in the header names itself: the axis, which way is positive, and the unit.
     /// A bare `req [+0.30 +0.00 +0.10]` needs the reader to already know it is a velocity twist
-    /// in m/s and rad/s, which is exactly the convention `duck-ipc-proto` documents *because*
+    /// in m/s and rad/s, which is exactly the convention `vibe-ipc-proto` documents *because*
     /// leaving it implicit is how the prototype grew five sign-flip flags.
     #[test]
     fn the_header_labels_its_axes_and_units() {
@@ -3256,7 +3256,7 @@ mod tests {
     }
 
     /// The pack's charge is on the frame, in volts *and* as a fraction — the mapping between
-    /// them lives in `duck-control` and travels on the answer precisely so that two screens
+    /// them lives in `vibe-control` and travels on the answer precisely so that two screens
     /// cannot disagree about the same battery.
     #[test]
     fn the_frame_shows_what_the_pack_has_left() {

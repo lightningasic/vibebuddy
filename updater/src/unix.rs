@@ -8,7 +8,7 @@
 //! argument rather than one per caller.
 //!
 //! Not shared with `configd`, `padd` and `tof`, which have their own copies: the obvious common
-//! home is `duck-ipc-proto`, and that crate is types only — every service speaks it, including
+//! home is `vibe-ipc-proto`, and that crate is types only — every service speaks it, including
 //! the ones on the recovery path, so it may not grow a libc dependency for the convenience of a
 //! few callers. Within *this* crate there is no such excuse, which is why the lib and the binary
 //! share these rather than each keeping a copy.

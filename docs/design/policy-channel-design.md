@@ -240,7 +240,7 @@ origin and version). One new namespace on `updaterd`, `policy.*`, for the fetch.
 `API_VERSION` goes 17 → 18. `robotctl` and `btd` ship in the same artifact as `robotd`, so they
 move together; a client pinned to v17 gets `METHOD_NOT_FOUND` naming the method, which is the
 designed skew behaviour and not a handshake refusal
-([`duck-ipc-proto/src/lib.rs`](../../duck-ipc-proto/src/lib.rs), `API_VERSION`).
+([`vibe-ipc-proto/src/lib.rs`](../../vibe-ipc-proto/src/lib.rs), `API_VERSION`).
 
 **The fetch lives in `updaterd`, not in `robotctl`.** `robotctl/Cargo.toml` states the rule it
 would break: a support tool on the recovery path does not link the update engine's
@@ -434,7 +434,7 @@ manifest that lies is caught by the shape gate, which is where the real check ha
 **Absence is not evidence**: a repo with no manifest, or one omitting the fields we act on, is
 accepted, because most of the Hub follows no convention of ours and refusing on silence would
 reject the majority of it. And the numbers it is checked against are published in
-`duck_ipc_proto` rather than duplicated, with a compile-time assertion in `duck_control` that the
+`vibe_ipc_proto` rather than duplicated, with a compile-time assertion in `vibe_control` that the
 two agree — a contract with whoever publishes a policy belongs where both sides can see it.
 
 **A slot can be switched off**, with `none` — the literal `[policy] <slot> = "none"` already

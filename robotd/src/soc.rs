@@ -1,6 +1,6 @@
 //! What the *board* says about itself, as opposed to what the robot says.
 //!
-//! Deliberately not in `duck-control` and not behind [`crate::RobotIo`]: nothing here touches
+//! Deliberately not in `vibe-control` and not behind [`crate::RobotIo`]: nothing here touches
 //! the Dynamixel bus. It is a `sysfs` read, so it belongs to the daemon that runs on a Linux
 //! board rather than to the crate that models a robot — and it keeps working when the motor
 //! bus does not, which is exactly when a thermal reading is interesting.

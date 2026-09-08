@@ -132,9 +132,9 @@ impl Store {
 
     /// The PIN as a protocol result, so the `is_default` judgement lives with the constant it
     /// compares against rather than in every caller.
-    pub fn name_and_pin_result(&self) -> duck_ipc_proto::PairingPinResult {
+    pub fn name_and_pin_result(&self) -> vibe_ipc_proto::PairingPinResult {
         let pin = self.pairing_pin();
-        duck_ipc_proto::PairingPinResult {
+        vibe_ipc_proto::PairingPinResult {
             is_default: pin == DEFAULT_PIN,
             pin,
         }

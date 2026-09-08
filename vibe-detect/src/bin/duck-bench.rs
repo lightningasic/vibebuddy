@@ -24,12 +24,12 @@ use std::time::{Duration, Instant};
 
 use anyhow::{Context, Result, bail};
 use clap::Parser;
-use duck_detect::{decode, letterbox_rgb, rknn::Model};
+use vibe_detect::{decode, letterbox_rgb, rknn::Model};
 
 #[derive(Parser)]
 #[command(about = "Run the duck detector on this board and report what it costs")]
 struct Args {
-    /// The quantised model, as `scripts/to_rknn.py` in the duck_detector repo writes it.
+    /// The quantised model, as `scripts/to_rknn.py` in the vibe_detector repo writes it.
     #[arg(long)]
     model: PathBuf,
 

@@ -1,5 +1,5 @@
 [package]
-name = "duckctl"
+name = "vibectl"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -12,8 +12,8 @@ description = "The robot from a laptop — over BLE today, over whatever reaches
 # It was an example of `btd` until it was not. An example's dependencies are dev-dependencies, so
 # `btleplug` could never reach the shipped artifact — a real guarantee, obtained as a side effect
 # of which directory the file sat in. Its own crate keeps the guarantee and states it directly:
-# **nothing on the robot depends on `duckctl`**, so nothing here is in a release. Two things
-# stopped being awkward on the way — `cargo install --path duckctl` rather than
+# **nothing on the robot depends on `vibectl`**, so nothing here is in a release. Two things
+# stopped being awkward on the way — `cargo install --path vibectl` rather than
 # `cargo install --path btd --example duck-btctl`, which `dev-push.sh` carried a fallback for,
 # and a name that no longer says `bt` when the robot is about to have a second transport.
 #
@@ -31,7 +31,7 @@ btd = { path = "../btd" }
 # `API_VERSION`, and the `semver` re-export it is compared with. The version handshake is a
 # contract between this client and every daemon, so it is read from the crate that defines it
 # rather than kept as a number here that could drift.
-duck-ipc-proto = { path = "../duck-ipc-proto" }
+vibe-ipc-proto = { path = "../vibe-ipc-proto" }
 
 # `btleplug` rather than `bluer`, because this runs on a developer's machine: CoreBluetooth on
 # macOS, BlueZ on Linux, WinRT on Windows. `bluer` would make the client Linux-only, which defeats

@@ -18,7 +18,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, Instant};
 
 use anyhow::{Context, Result};
-use duck_detect::{Detection, Turn, decode, letterbox_from_uyvy};
+use vibe_detect::{Detection, Turn, decode, letterbox_from_uyvy};
 use tokio::sync::broadcast;
 
 use crate::pipeline::Frames;
@@ -68,15 +68,15 @@ const REPORT_LOOKS: u64 = 20;
 /// NPU and an `.onnx` only runs on the CPU, so asking somebody to say both is asking them to
 /// contradict themselves.
 enum Backend {
-    Npu(duck_detect::rknn::Model),
-    Cpu(duck_detect::onnx::Model),
+    Npu(vibe_detect::rknn::Model),
+    Cpu(vibe_detect::onnx::Model),
 }
 
 impl Backend {
     fn open(path: &Path) -> Result<Self> {
         let rknn = path.extension().is_some_and(|ext| ext == "rknn");
         if rknn {
-            let model = duck_detect::rknn::Model::open(path)?;
+            let model = vibe_detect::rknn::Model::open(path)?;
             tracing::info!(
                 model = %path.display(),
                 api = %model.api_version,
@@ -85,7 +85,7 @@ impl Backend {
             );
             Ok(Self::Npu(model))
         } else {
-            let model = duck_detect::onnx::Model::open(path)?;
+            let model = vibe_detect::onnx::Model::open(path)?;
             tracing::info!(
                 model = %path.display(),
                 "duck detector on the cpu — an .onnx model, or an .rknn the npu would not take"
@@ -170,7 +170,7 @@ pub fn spawn(
     let period = Duration::from_secs_f64(1.0 / hz.max(0.1));
 
     std::thread::Builder::new()
-        .name("duck-detect".into())
+        .name("vibe-detect".into())
         .spawn(move || {
             let mut square = Vec::new();
             let mut raw = Vec::new();

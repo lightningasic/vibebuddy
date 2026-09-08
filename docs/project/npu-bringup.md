@@ -3,7 +3,7 @@
 The RK3566 has a small INT8 NPU — 0.8 TOPS, one core. This is the record of putting a trained duck
 detector on it: what to run, what to expect, and what is still missing before a behaviour can use it.
 
-The model is trained in [duck_detector](https://github.com/pollen-robotics/duck_detector) and comes
+The model is trained in [vibe_detector](https://github.com/pollen-robotics/vibe_detector) and comes
 here as a quantised `.rknn`. First model, for reference: `yolo11n` at 320×320, one class, 150 frames
 from three sessions, mAP50 0.976 on a held-out session — and 3.9 MB after INT8 quantisation, which
 kept 2 of 2 detections at 95% box overlap against the float model on the desk.
@@ -12,14 +12,14 @@ kept 2 of 2 detections at 95% box overlap against the float model on the desk.
 
 | | |
 |---|---|
-| `duck-detect` | The letterbox, the runtime binding, and the decode — plus `duck-bench`. |
+| `vibe-detect` | The letterbox, the runtime binding, and the decode — plus `duck-bench`. |
 | `scripts/setup-npu.sh` | Enables the NPU node, installs `librknnrt.so`, and reports on the driver. |
 
 Two decisions worth knowing before reading either:
 
 **`dlopen`, not link.** `librknnrt.so` is a vendor blob in no Debian suite, and a crate that linked
 it could not be cross-compiled in CI. `robotd` reaches ONNX Runtime the same way. The cost is
-`duck-detect/src/rknn.rs`; the benefit is that `cargo board --bins` still works on a laptop.
+`vibe-detect/src/rknn.rs`; the benefit is that `cargo board --bins` still works on a laptop.
 
 **The runtime dequantises.** A quantised model's output tensor is int8 with a scale and a zero
 point. `rknn_outputs_get` will convert to float if asked, and it is asked — the alternative is
@@ -51,7 +51,7 @@ the script, and the copy left in `/usr/local/sbin` has nothing beside it on a fi
 Then, from a clone on your machine:
 
 ```bash
-cargo board --bins -p duck-detect
+cargo board --bins -p vibe-detect
 scp target/aarch64-unknown-linux-gnu/release/duck-bench microduck@<robot>:/var/tmp/
 scp <the>.rknn microduck@<robot>:/var/tmp/duck.rknn
 scp -r datasets/raw/<a-session> microduck@<robot>:/var/tmp/frames

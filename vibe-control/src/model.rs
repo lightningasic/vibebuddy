@@ -21,7 +21,7 @@ pub const JOINT_IDS: [u8; NUM_JOINTS] = [
 /// Joint names, from the protocol crate — the wire indexes `joints` and `targets`
 /// positionally, so that order and this one cannot be allowed to drift apart. The
 /// assertion below is what makes "cannot" true.
-pub use duck_ipc_proto::JOINT_NAMES;
+pub use vibe_ipc_proto::JOINT_NAMES;
 
 const _: () = assert!(JOINT_NAMES.len() == NUM_JOINTS);
 

@@ -201,7 +201,7 @@ fn main() -> ExitCode {
 
     // Before anything that can fail, so a journal that reports a startup failure also reports
     // which build failed. Every other daemon does this for the same reason.
-    duck_ipc_proto::log_startup_identity!("mediad");
+    vibe_ipc_proto::log_startup_identity!("mediad");
 
     let runtime = match tokio::runtime::Runtime::new() {
         Ok(runtime) => runtime,
@@ -250,7 +250,7 @@ fn main() -> ExitCode {
     );
     // The same angle the detector needs, in its own vocabulary: it folds the turn into the
     // resampling it already does, which is why nothing in the pipeline has to.
-    let turn = match duck_detect::Turn::from_degrees(rotate) {
+    let turn = match vibe_detect::Turn::from_degrees(rotate) {
         Some(turn) => turn,
         None => {
             tracing::error!(degrees = rotate, "mediad cannot start");
@@ -293,7 +293,7 @@ fn main() -> ExitCode {
         // bounded and why a failure is a warning rather than an exit.
         let sockets = args.sockets();
         let producer =
-            mediad::producer::Producer::learn(sockets.clone(), duck_ipc_proto::build_info!()).await;
+            mediad::producer::Producer::learn(sockets.clone(), vibe_ipc_proto::build_info!()).await;
         tracing::info!(
             name = producer.name.as_deref().unwrap_or("unknown"),
             release = %producer.release,
@@ -437,7 +437,7 @@ fn main() -> ExitCode {
             // to flip, in which case they are upright already and the sampler must not turn them
             // again.
             let sampler_turn = if args.flip_in_pipeline {
-                duck_detect::Turn::None
+                vibe_detect::Turn::None
             } else {
                 turn
             };

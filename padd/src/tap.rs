@@ -45,7 +45,7 @@ use std::sync::{Arc, Condvar, Mutex, MutexGuard, PoisonError};
 use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 use evdev::raw_stream::RawDevice;
 use evdev::{
     AbsoluteAxisCode, AttributeSet, EventType, KeyCode, MiscCode, RelativeAxisCode,

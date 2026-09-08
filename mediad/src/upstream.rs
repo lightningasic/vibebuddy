@@ -24,7 +24,7 @@ use std::io;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::UnixStream;
 use tokio::sync::mpsc;

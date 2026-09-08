@@ -1,6 +1,6 @@
 //! Turning sensors and a command into joint targets — and scheduling the skills.
 //!
-//! Everything here is pure computation between [`duck_control::io::RobotIo::read`] and the
+//! Everything here is pure computation between [`vibe_control::io::RobotIo::read`] and the
 //! safety layer's `apply`. It holds no IO handle — by construction it cannot command a
 //! motor, only propose targets.
 //!
@@ -32,9 +32,9 @@
 //! after a sit→stand cycle until the next walk. Here scale and gain are recomputed from
 //! the active state every tick — same values on every path that matters, no leftovers.
 
-use duck_control::model::{DEFAULT_POSITION, NUM_JOINTS};
-use duck_control::obs::{ACTION_LEN, Command, Observation};
-use duck_control::policy::{Net, Policy, PolicyError};
+use vibe_control::model::{DEFAULT_POSITION, NUM_JOINTS};
+use vibe_control::obs::{ACTION_LEN, Command, Observation};
+use vibe_control::policy::{Net, Policy, PolicyError};
 
 /// Joint indices the head low-pass covers: neck_pitch, head_pitch, head_yaw, head_roll.
 const HEAD_JOINTS: std::ops::Range<usize> = 5..9;
@@ -424,7 +424,7 @@ impl Controller {
     /// `scale_mult` multiplies the action scale — voltage adaptation, 1.0 when off.
     pub fn step(
         &mut self,
-        sensors: &duck_control::Sensors,
+        sensors: &vibe_control::Sensors,
         command: &Command,
         body_active: bool,
         dt: f64,
@@ -611,7 +611,7 @@ impl Controller {
             }
             if let Some(alpha) = self.tuning.legs_lowpass {
                 for (joint, target) in targets.iter_mut().enumerate() {
-                    if HEAD_JOINTS.contains(&joint) || joint == duck_control::model::MOUTH_INDEX {
+                    if HEAD_JOINTS.contains(&joint) || joint == vibe_control::model::MOUTH_INDEX {
                         continue;
                     }
                     *target = alpha * *target + (1.0 - alpha) * previous[joint];

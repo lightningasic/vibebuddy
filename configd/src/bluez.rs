@@ -145,7 +145,7 @@ use std::collections::HashMap;
 use std::time::Duration;
 
 use async_trait::async_trait;
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 use zbus::names::OwnedInterfaceName;
 use zbus::zvariant::{ObjectPath, OwnedObjectPath, OwnedValue};
 

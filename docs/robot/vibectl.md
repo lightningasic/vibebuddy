@@ -1,4 +1,4 @@
-# `duckctl` — every command
+# `vibectl` — every command
 
 Talk to a robot from a laptop, with no network and no ssh. It is the phone app's stand-in, and the
 way to reach a robot that has never seen a wifi network.
@@ -9,7 +9,7 @@ it talks to rather than for the radio it currently uses. It was `duck-btctl` whi
 answer.
 
 **Never on a robot.** Nothing in a release depends on it — `robotctl` is the tool that ships, and
-[`cheatsheet.md`](cheatsheet.md) has its commands, most of which have a `duckctl` equivalent
+[`cheatsheet.md`](cheatsheet.md) has its commands, most of which have a `vibectl` equivalent
 below.
 
 ## Getting it
@@ -17,21 +17,21 @@ below.
 Run it from a clone of this repo:
 
 ```bash
-cargo run -q -p duckctl -- --name <robot-name> info
+cargo run -q -p vibectl -- --name <robot-name> info
 ```
 
 Or install it once, at the cost of a snapshot that no longer follows the branch:
 
 ```bash
-cargo install --path duckctl
+cargo install --path vibectl
 ```
 
 ```bash
-duckctl --name <robot-name> info
+vibectl --name <robot-name> info
 ```
 
 Every command below is written in the installed form. Prefix it with
-`cargo run -q -p duckctl --` to run it from the clone instead.
+`cargo run -q -p vibectl --` to run it from the clone instead.
 
 This tool used to install itself as `btctl`. If `which btctl` still finds one, it is a build from
 whenever you installed it and it will never change again:
@@ -43,7 +43,7 @@ cargo uninstall btd --bin btctl
 ## Finding a robot
 
 ```bash
-duckctl scan
+vibectl scan
 ```
 
 ```
@@ -59,15 +59,15 @@ that list, and it is worth reading when the robot you want is not in the first o
 Each robot broadcasts its IPv4 address, so this is also where the address to ssh to comes from. No
 connection is made and no PIN is needed. `no address` on the line means the robot is not on a
 network; a line with no address at all means a release from before robots broadcast one, and
-`duckctl wifi status` still reports it.
+`vibectl wifi status` still reports it.
 
-The SSID is not in the listing — it does not fit in an advertisement. `duckctl wifi status` has
+The SSID is not in the listing — it does not fit in an advertisement. `vibectl wifi status` has
 it, along with the signal and both addresses.
 
 For the address on its own:
 
 ```bash
-ssh radxa@$(duckctl ip)
+ssh radxa@$(vibectl ip)
 ```
 
 `ip` prints the address and nothing else, so it substitutes. It reads the advertisement, so it
@@ -110,7 +110,7 @@ robotctl system set-name ducky
 The robot serves a page that streams its camera and drives it:
 
 ```bash
-duckctl open
+vibectl open
 ```
 
 Finds the robot, then opens `http://<address>:8080/` in a browser. `--print` gives the URL instead,
@@ -138,7 +138,7 @@ itself, using the host it was served from. If the page loads and then says its s
 not answer, the robot is up and something between you and 8443 is not — a firewall, most often.
 
 The camera and the drive controls are on WebRTC and nothing else, so a robot with no network address
-has no console. Join it to one over the radio first — `duckctl wifi connect` below needs no network
+has no console. Join it to one over the radio first — `vibectl wifi connect` below needs no network
 of its own.
 
 ## Always the same robot
@@ -152,7 +152,7 @@ export DUCK_ROBOT=duck-c51b
 Put that line in `~/.zshrc` to keep it. Every command below then works without `--name`:
 
 ```bash
-duckctl info
+vibectl info
 ```
 
 `DUCK_PIN` does the same for `--pin`, which a robot with a PIN of its own needs on every command:
@@ -164,14 +164,14 @@ export DUCK_PIN=418299
 For one command against a different robot, `--name` still wins:
 
 ```bash
-duckctl --name duck-ffff info
+vibectl --name duck-ffff info
 ```
 
 To ignore the default for one command — a bench with somebody else's robot on it — set it to
 nothing:
 
 ```bash
-DUCK_ROBOT= duckctl scan
+DUCK_ROBOT= vibectl scan
 ```
 
 `scan` marks the robot `DUCK_ROBOT` names and lists it first, and every command that goes looking
@@ -180,13 +180,13 @@ for it says so before it starts scanning.
 ## Identity
 
 ```bash
-duckctl --name <robot-name> info
+vibectl --name <robot-name> info
 ```
 
 Name, serial and uptime.
 
 ```bash
-duckctl --name <robot-name> name <new-name>
+vibectl --name <robot-name> name <new-name>
 ```
 
 Up to 24 characters. It takes effect within a few seconds and needs no restart, but the Mac keeps
@@ -197,44 +197,44 @@ A rename does not follow `DUCK_ROBOT`. The tool says so afterwards; the variable
 by hand, or every later command looks for a name that no longer answers.
 
 ```bash
-duckctl --name <robot-name> reboot
+vibectl --name <robot-name> reboot
 ```
 
 ## Wifi
 
 ```bash
-duckctl --name <robot-name> wifi status
+vibectl --name <robot-name> wifi status
 ```
 
 SSID, signal and addresses.
 
 ```bash
-duckctl --name <robot-name> wifi scan
+vibectl --name <robot-name> wifi scan
 ```
 
 Takes a few seconds — the robot sweeps the radio rather than returning the previous scan.
 
 ```bash
-duckctl --name <robot-name> wifi connect <ssid> --psk <passphrase>
+vibectl --name <robot-name> wifi connect <ssid> --psk <passphrase>
 ```
 
 Omit `--psk` for an open network. Joining disconnects the robot from the network it is on, so an ssh
 session over wifi drops; that is the command working. It can take up to 45 seconds to answer.
 
 ```bash
-duckctl --name <robot-name> wifi forget <ssid>
+vibectl --name <robot-name> wifi forget <ssid>
 ```
 
 ## Is it alright
 
 ```bash
-duckctl --name <robot-name> health
+vibectl --name <robot-name> health
 ```
 
 Whether the control loop is healthy.
 
 ```bash
-duckctl --name <robot-name> status
+vibectl --name <robot-name> status
 ```
 
 The version handshake and the update status.
@@ -242,7 +242,7 @@ The version handshake and the update status.
 ## Which release is it running
 
 ```bash
-duckctl --name <robot-name> version
+vibectl --name <robot-name> version
 ```
 
 The API version, the release, and the git revision it was built from. A `revision` of `null` means
@@ -254,25 +254,25 @@ Same words as `robotctl update`, so a command learned on the robot works here. E
 takes `--component <name>` and defaults to `daemon`, which is the only component a robot has today.
 
 ```bash
-duckctl --name <robot-name> update check
+vibectl --name <robot-name> update check
 ```
 
 ```bash
-duckctl --name <robot-name> update status
+vibectl --name <robot-name> update status
 ```
 
 ```bash
-duckctl --name <robot-name> update versions
+vibectl --name <robot-name> update versions
 ```
 
 ```bash
-duckctl --name <robot-name> update log --limit 20
+vibectl --name <robot-name> update log --limit 20
 ```
 
 Installing takes minutes and prints progress lines as it goes:
 
 ```bash
-duckctl --name <robot-name> update apply
+vibectl --name <robot-name> update apply
 ```
 
 ```
@@ -288,7 +288,7 @@ duckctl --name <robot-name> update apply
   "to": "0.6.0"
 }
 note: the robot restarts its daemons now, and `btd` about five seconds after this reply — so this
-connection drops. That is the update working. Reconnect and run `duckctl update status`:
+connection drops. That is the update working. Reconnect and run `vibectl update status`:
 `last_attempt` carries the outcome of what just ran.
 ```
 
@@ -298,15 +298,15 @@ The connection dropping after an apply is the update working, not a failure. Rec
 A branch build, an exact version, or the staging candidate:
 
 ```bash
-duckctl --name <robot-name> update apply --ref my-branch
+vibectl --name <robot-name> update apply --ref my-branch
 ```
 
 ```bash
-duckctl --name <robot-name> update apply --version 0.5.1
+vibectl --name <robot-name> update apply --version 0.5.1
 ```
 
 ```bash
-duckctl --name <robot-name> update apply --staging
+vibectl --name <robot-name> update apply --staging
 ```
 
 `--dry-run` verifies everything and stops before the swap. `--ref` and `--version` are alternatives;
@@ -315,11 +315,11 @@ asking for both is refused.
 Going back — the previous release, or one named from `update versions`:
 
 ```bash
-duckctl --name <robot-name> update rollback
+vibectl --name <robot-name> update rollback
 ```
 
 ```bash
-duckctl --name <robot-name> update select 0.5.1
+vibectl --name <robot-name> update select 0.5.1
 ```
 
 Both are gated like an apply, so one that does not come up is reverted. Neither discards anything.
@@ -327,7 +327,7 @@ Both are gated like an apply, so one that does not come up is reverted. Neither 
 Progress for an update somebody else started, or one triggered by the robot itself:
 
 ```bash
-duckctl --name <robot-name> update watch
+vibectl --name <robot-name> update watch
 ```
 
 It prints where the update in flight has got to and then everything that follows. It never receives
@@ -336,7 +336,7 @@ a reply, so it ends with Ctrl-C.
 ## The Hugging Face account
 
 ```
-duckctl account login
+vibectl account login
 ```
 
 Prints a code and opens <https://hf.co/oauth/device>, where you type it — Hugging Face's device
@@ -345,11 +345,11 @@ robot does the waiting**, so this tool disconnects as soon as it has printed the
 in the browser it opened, or from any other device, then:
 
 ```
-duckctl account status
+vibectl account status
 ```
 
 ```
-duckctl account logout
+vibectl account logout
 ```
 
 This is the one thing that works on a robot that has never seen a network: no wifi means no
@@ -357,7 +357,7 @@ console and no LAN, and Bluetooth is what is left. Signing in over BLE is the sa
 wizard runs.
 
 ```
-duckctl account login --no-open
+vibectl account login --no-open
 ```
 
 for the code and the URL without a browser — which is also what you get automatically when the
@@ -371,7 +371,7 @@ to be approved. `--force` replaces either — the abandoned code stops working.
 What each slot runs, and which skills this robot has:
 
 ```bash
-duckctl policy list
+vibectl policy list
 ```
 
 The `skills` array is the answer to "what can this robot be asked for". They are config, so it
@@ -380,7 +380,7 @@ differs between robots and there is no list to assume — read it before offerin
 Run one:
 
 ```bash
-duckctl do roulade
+vibectl do roulade
 ```
 
 **The robot has to be driving.** Press Start on the pad first, or it answers saying so. It needs
@@ -390,26 +390,26 @@ stands still and does the thing.
 Change what it walks with, live:
 
 ```bash
-duckctl policy load walk /opt/robot/policies/current/alpha_walking.onnx
+vibectl policy load walk /opt/robot/policies/current/alpha_walking.onnx
 ```
 
 Put that slot back:
 
 ```bash
-duckctl policy reset walk
+vibectl policy reset walk
 ```
 
 One slot at a time, because the wire call takes one — resetting all seven is
 `robotctl policy reset` on the robot. The path is on the *robot*, and must be absolute.
 
 A load from here **survives a reboot**, exactly as `robotctl policy load` on the robot does: the
-daemon writes the slot into `robotd.toml` before it swaps. `duckctl policy reset <slot>` is the
+daemon writes the slot into `robotd.toml` before it swaps. `vibectl policy reset <slot>` is the
 undo.
 
 Re-read every slot from the config file, for when something else changed it:
 
 ```bash
-duckctl policy reload
+vibectl policy reload
 ```
 
 The robot goes to its home pose with torque on, loads, and drives again — a few seconds, and the
@@ -421,23 +421,23 @@ changes, and a load that fails anyway keeps the policy that was running.
 What else is published for this robot, and whether the official set has moved:
 
 ```bash
-duckctl policy search microduck
+vibectl policy search microduck
 ```
 
 ```bash
-duckctl policy check
+vibectl policy check
 ```
 
 Install the newest official set — or `--version v1` to go back:
 
 ```bash
-duckctl policy update
+vibectl policy update
 ```
 
 Download somebody else's, without running it:
 
 ```bash
-duckctl policy fetch RemiFabre/microduck-flamingo-cycle
+vibectl policy fetch RemiFabre/microduck-flamingo-cycle
 ```
 
 The reply names the path it landed at. `load` takes a path and never `org/repo`: fetching and
@@ -448,18 +448,18 @@ loading are two calls here where `robotctl` spells both with one string.
 `fetch` downloads a file; this makes it something `robot do` answers to:
 
 ```bash
-duckctl policy skill polite-bow --path /var/lib/robot/policies/fffiloni/microduck-polite-bow-b1d864/main/policy.onnx --duration 4
+vibectl policy skill polite-bow --path /var/lib/robot/policies/fffiloni/microduck-polite-bow-b1d864/main/policy.onnx --duration 4
 ```
 
 ```bash
-duckctl do polite-bow
+vibectl do polite-bow
 ```
 
 One call — the robot writes its config and reloads, so nothing restarts. `--duration` is required
 the first time and kept afterwards, so changing one field means sending one field:
 
 ```bash
-duckctl policy skill polite-bow --command 1,0,0
+vibectl policy skill polite-bow --command 1,0,0
 ```
 
 `--command` is the twist fed to the network while it runs, zeros unless the policy reads its twist
@@ -469,14 +469,14 @@ that holds until told otherwise is brought back.
 What this robot can be asked to do, and the timings behind each:
 
 ```bash
-duckctl policy skills
+vibectl policy skills
 ```
 
 `built_in` in that answer names `ground_pick` and `sit_toggle`, which `robot do` also accepts but
 which are driven by the robot itself and are not table entries.
 
 ```bash
-duckctl policy unskill polite-bow
+vibectl policy unskill polite-bow
 ```
 
 A skill this robot's release ships comes back when you do that, because removing the entry only
@@ -489,15 +489,15 @@ description. Have the robot on its stand the first time.
 ## Which button runs which skill
 
 ```bash
-duckctl pad bindings
+vibectl pad bindings
 ```
 
 ```bash
-duckctl pad bind x polite-bow
+vibectl pad bind x polite-bow
 ```
 
 ```bash
-duckctl pad reset x
+vibectl pad reset x
 ```
 
 **Nothing restarts and nothing else is needed** — `padd` re-reads the file within a second. The
@@ -519,11 +519,11 @@ the list of skills.
 ## Anything else — `call`
 
 ```bash
-duckctl --name <robot-name> call <method> '<json-params>'
+vibectl --name <robot-name> call <method> '<json-params>'
 ```
 
 Params default to `{}`. These are reachable over Bluetooth but have no wrapper of their own, and are
-written without the `duckctl --name <robot-name>` in front of them:
+written without the `vibectl --name <robot-name>` in front of them:
 
 | | |
 |---|---|
@@ -549,7 +549,7 @@ minutes with nothing arriving at all — which is why they are the way to run an
 ## What it prints
 
 Replies go to stdout as pretty JSON, and everything else — progress, diagnosis, what the radio
-saw — to stderr. So `duckctl ... info > reply.json` keeps the two apart, and a JSON-RPC error
+saw — to stderr. So `vibectl ... info > reply.json` keeps the two apart, and a JSON-RPC error
 from the robot still exits non-zero. Progress lines start with `·` and are one line each, so
 `update apply > outcome.json` leaves them on screen and keeps the outcome in the file.
 
@@ -582,7 +582,7 @@ Those commands are `robotctl` on the robot.
 ## When it cannot find the robot
 
 ```bash
-duckctl --verbose scan
+vibectl --verbose scan
 ```
 
 An empty list — not one pair of earbuds — points at the Mac rather than the robot: Bluetooth off,

@@ -31,7 +31,7 @@
 
 use std::time::{Duration, Instant};
 
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 use sounds::chorale::beat::{Conductor, Follower};
 use sounds::chorale::{Part, Score, seat_all};
 

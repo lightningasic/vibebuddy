@@ -146,7 +146,7 @@ on the board:
 sudo -u padd /opt/robot/daemon/current/bin/padd --max-linear 0.25
 ```
 
-## From a laptop — `duckctl`
+## From a laptop — `vibectl`
 
 Reaching the robot over Bluetooth LE, with no network and no ssh:
-[`duckctl.md`](duckctl.md) has every command.
+[`vibectl.md`](vibectl.md) has every command.

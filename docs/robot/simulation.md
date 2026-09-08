@@ -9,7 +9,7 @@ not a twin of, and why it is built the way it is.
 
 ## What it is
 
-`robotd --sim host:port` runs the daemon with `duck_control::sim::RemoteIo` in place of the servo
+`robotd --sim host:port` runs the daemon with `vibe_control::sim::RemoteIo` in place of the servo
 bus: every tick, joint positions, velocities and the IMU come in over a TCP socket from a MuJoCo
 process, and the policy's targets go back out. Everything above that seam — the control loop, the
 policy, safety, fall detection, kinematics, odometry, the whole IPC surface — is the code a robot
@@ -42,7 +42,7 @@ Both drive the same MuJoCo body with the same `robotd`. They differ in what the 
 | The daemons run as | plain processes, your user, a pidfile each | systemd services inside a `systemd-nspawn` container per duck, from the real unit files |
 | Needs | nothing beyond the repo and `microduck_rl` | `sudo`, a one-time Debian rootfs build |
 | Starts in | seconds | a minute the first time, seconds after |
-| Identity | your laptop's; several ducks are one process tree | a machine-id, a voice and a socket per duck, and `duck-ether` between them |
+| Identity | your laptop's; several ducks are one process tree | a machine-id, a voice and a socket per duck, and `vibe-ether` between them |
 | Exercises | the control loop, policies, IPC, `robotctl`, the console | all of that, plus `User=`/groups/`RuntimeDirectory=`/hardening, the updater's apply, health gate, rollback and restart order, `journalctl` |
 
 Rule of thumb: **`up`** when you are working on the control loop, a policy, IPC or a client.
@@ -92,7 +92,7 @@ groups, `RuntimeDirectory=` and hardening, under a real init — so `robotctl up
 health gate and the restart order behave as they do on a robot. Ducks are `duck-a`, `duck-b`, ... and
 each has its own machine-id and its own voice.
 
-With more than one duck the script also starts `duck-ether`, a fake radio that carries the chorale's
+With more than one duck the script also starts `vibe-ether`, a fake radio that carries the chorale's
 BLE beacons between containers. It is deliberately a *bad* radio — dropped and delayed beacons —
 because a perfect one hides the bugs the real one shows.
 

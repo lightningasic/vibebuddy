@@ -305,10 +305,10 @@ pub const API_VERSION: u32 = 25;
 
 /// The observation width every policy this robot family runs is built against.
 ///
-/// Here rather than only in `duck_control` because it is a **contract with whoever publishes a
+/// Here rather than only in `vibe_control` because it is a **contract with whoever publishes a
 /// policy**, not an implementation detail: it is what a repo's manifest declares, what
 /// `updaterd` refuses a mismatched policy on before downloading it, and what `robotd` refuses it
-/// on at load. `duck_control::obs` is still where the observation is built, and a test there
+/// on at load. `vibe_control::obs` is still where the observation is built, and a test there
 /// asserts the two agree.
 pub const POLICY_OBS_LEN: usize = 61;
 
@@ -327,7 +327,7 @@ pub const ROBOT_MODEL: &str = "microduck";
 /// nothing at all while the hook works — and that hook installs what a release needs and the board
 /// may not have: ONNX Runtime, and around 100 MB of apt for `mediad`'s GStreamer stack on a board
 /// that has never had it. A client whose idle budget is shorter than this reports a working update
-/// as a robot that stopped answering, which is exactly what `duckctl` did the first time this
+/// as a robot that stopped answering, which is exactly what `vibectl` did the first time this
 /// ceiling moved.
 ///
 /// `updaterd` enforces it and every client sizes its own budget above it. Both read this constant,
@@ -386,9 +386,9 @@ pub fn runtime_root() -> std::path::PathBuf {
 
 /// The robot's joint order, as every positional vector on the wire is indexed.
 ///
-/// It lives here rather than in `duck_control::model` because it *is* protocol:
+/// It lives here rather than in `vibe_control::model` because it *is* protocol:
 /// [`RobotState::joints`] and [`RobotState::targets`] are bare arrays of numbers, and a
-/// client that cannot name index 3 cannot display them. `duck-control` re-exports this
+/// client that cannot name index 3 cannot display them. `vibe-control` re-exports this
 /// table, so the wire order and the order the servos are driven in are one list, not two
 /// that must be kept in step.
 ///
@@ -1479,7 +1479,7 @@ impl Call {
 /// `btd::route`, and they had already drifted — 115 lines against 82. A third was about to be
 /// written for `mediad`.
 // `any(test, ...)` so this crate's own tests reach it without the feature being enabled, which is
-// the difference between `cargo test -p duck-ipc-proto` working and not.
+// the difference between `cargo test -p vibe-ipc-proto` working and not.
 #[cfg(any(test, feature = "test-support"))]
 pub mod test_support {
     use super::*;
@@ -3225,7 +3225,7 @@ impl ImuHealth {
     ///
     /// 25 reads is half a second at 50 Hz: long enough that no ordinary hiccup reaches it, short
     /// enough to be prompt, and the same span `SflpDecoder::ready` waits for before it will
-    /// treat the chip's output as a measurement. `duck-control`'s journal warning uses the same
+    /// treat the chip's output as a measurement. `vibe-control`'s journal warning uses the same
     /// number — deliberately, so the log and the report agree about what "frozen" means — but
     /// keeps its own copy, because the hardware layer does not depend on this IPC vocabulary.
     pub const FROZEN_RUN: u64 = 25;
@@ -3256,7 +3256,7 @@ pub struct MotorThermal {
 /// Motor-bus voltage, and what fraction of a pack that is.
 ///
 /// Both, deliberately. Volts is the measurement; percent is a *mapping* over a pack the
-/// robot knows and a client should not have to (`duck_control::model::battery_percent`).
+/// robot knows and a client should not have to (`vibe_control::model::battery_percent`).
 /// The prototype shipped volts only, and the mapping was duplicated into the app — which is
 /// how two screens end up disagreeing about the same battery.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]

@@ -26,7 +26,7 @@ second port:
 ```text
                      robotd — control thread
                               │
-                              │  duck_control::bus::DynamixelIo
+                              │  vibe_control::bus::DynamixelIo
                               │  serialport · TIOCEXCL
                               ▼
          /dev/ttyS2 · 1 Mbps · Dynamixel protocol v2
@@ -113,8 +113,8 @@ questions: nothing in the update path can command a motor.
 ### 1.3 The crate boundary
 
 ```text
-duck-ipc-proto/  wire contract — serde only; no tokio, no http, no crypto
-duck-control/    robot model · bus · IMU · RobotIo · obs · policy · safety
+vibe-ipc-proto/  wire contract — serde only; no tokio, no http, no crypto
+vibe-control/    robot model · bus · IMU · RobotIo · obs · policy · safety
                  everything between reading the bus and writing it
                  no tokio, no sockets, no systemd
 robotd/          the process: socket, JSON-RPC, systemd, health reporting
@@ -130,11 +130,11 @@ updater/         engine + updaterd
 
 Everything below `robotd/` in that list is a **library it drives**, not a service: no tokio
 runtime of its own, no socket, nothing systemd starts. They are separate crates for the same
-reason `duck-control` is — the compiler is what keeps daemon concerns out of them, and
+reason `vibe-control` is — the compiler is what keeps daemon concerns out of them, and
 `kinematics` in particular has two consumers (`odometry` and `robotd`'s head FK) that would
 otherwise each grow a copy of the model.
 
-`duck-control` holds everything between reading the bus and writing it; `robotd` is the
+`vibe-control` holds everything between reading the bus and writing it; `robotd` is the
 process around it. The compiler enforces that boundary, which is what stops daemon concerns
 leaking into control code — and it means the crate can be lifted into its own repo later if
 the runtime needs to consume it during the transition, without that being a rewrite.
@@ -299,7 +299,7 @@ caller keeps its previous sample rather than treating one miss as news.
 
 **Board temperature is a third source, and not on the bus at all.** The hottest of the SoC's
 thermal zones, read from `sysfs` in the same once-a-second sample (`robotd/src/soc.rs`). It
-lives in `robotd` rather than `duck-control` because it is a property of the Linux board, not
+lives in `robotd` rather than `vibe-control` because it is a property of the Linux board, not
 of the robot — which is also why it keeps answering when the motor bus does not, and that is
 precisely when it earns its place: a board cooking behind a blocked vent and a robot with dead
 servos are the same symptom until you can see both numbers. The maximum across zones rather
@@ -492,7 +492,7 @@ a robot lying on its side, and the wrong one for softening a landing: gravity pa
 has closed by then.
 
 So `limp_fall` (on by default since it was validated on a robot) runs a second, separate
-detector — `duck_control::fall` — on the rate rather than the position. Projected gravity
+detector — `vibe_control::fall` — on the rate rather than the position. Projected gravity
 rotates with the trunk, so `ġ = −ω × g` is exact and comes straight from the gyro in the same
 12-byte IMU block; extrapolating it over ~0.3 s says where gravity is heading. It fires when
 the robot is already tilted (≈26°), still tipping over rather than recovering, and predicted
@@ -529,7 +529,7 @@ Rust consts for alpha only: 15 joints, Dynamixel IDs `20–24 / 30–34 / 10–1
 three dead variants. There is exactly one robot; a second revision can be a second table.
 
 Two of those tables are load-bearing beyond their own crate. `JOINT_NAMES` comes *from*
-`duck-ipc-proto`, because the wire indexes `joints` and `targets` positionally and the two
+`vibe-ipc-proto`, because the wire indexes `joints` and `targets` positionally and the two
 orders cannot be allowed to drift — a `const` assertion makes "cannot" true. And
 `DEFAULT_POSITION` must match `HOME_FRAME` in the training env: a policy observes joint
 positions *relative* to the home pose, so a discrepancy here is a constant offset on 14
@@ -591,7 +591,7 @@ explanation, is unusable, and safety clamps things constantly:
 ```
 
 **Battery carries both volts and percent**, here and in `robot.health`. The mapping — 6.6 V
-empty, 8.2 V full under load, an NP-F550 — lives in `duck_control::model::battery_percent` and
+empty, 8.2 V full under load, an NP-F550 — lives in `vibe_control::model::battery_percent` and
 travels already applied. The prototype sent volts only and the app re-derived the percentage
 from constants of its own, which is how the same pack shows two different numbers on two
 screens. A client drawing a battery pill should not have to know which pack this robot ships
@@ -935,7 +935,7 @@ Each test's comment says which failure it exists to prevent, per the repo conven
 
 | | |
 |---|---|
-| `duck-control` as a workspace crate | boundary enforced by the compiler, no second repo |
+| `vibe-control` as a workspace crate | boundary enforced by the compiler, no second repo |
 | bus layer written fresh, constants borrowed | thin code, but the tuned numbers are not re-derived |
 | the IMU in the motors' `sync_read` | it is a device on the same bus; no IMU abstraction |
 | Rust consts for the model | one robot exists |

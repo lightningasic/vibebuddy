@@ -488,8 +488,8 @@ impl DetectParams {
         }
         let release = PathBuf::from(RELEASE_DIR).join("models");
         [
-            release.join("duck_detect.rknn"),
-            release.join("duck_detect.onnx"),
+            release.join("vibe_detect.rknn"),
+            release.join("vibe_detect.onnx"),
         ]
         .into_iter()
         .filter(|path| path.exists())
@@ -549,7 +549,7 @@ impl Default for ThereminParams {
         let hand = kinematics::hand::Config::default();
         Self {
             enabled: true,
-            socket: PathBuf::from(duck_ipc_proto::socket::TOF),
+            socket: PathBuf::from(vibe_ipc_proto::socket::TOF),
             near_m: hand.near_m,
             far_m: hand.far_m,
             min_zones: hand.min_zones,
@@ -1016,7 +1016,7 @@ impl SetPolicy {
     ///
     /// A phase-encoded one does not — it is the ground pick, whose command the daemon generates,
     /// and loading it as a generic one-shot would feed it all-zeros: a robot moving plausibly and
-    /// wrongly, which `duck_control::obs`'s header calls the hardest failure to see.
+    /// wrongly, which `vibe_control::obs`'s header calls the hardest failure to see.
     pub fn is_zero_command_skill(&self) -> bool {
         self.is_episodic() && !self.is_phase() && !self.is_posture_flag()
     }
@@ -1526,7 +1526,7 @@ pub struct SafetyParams {
     /// The gain limp-fall yields at — low enough to give way rather than fight the floor.
     pub gain_limp: u16,
     /// Sit down and power the machine off when the battery EMA reaches the empty floor
-    /// (6.6 V — `duck_control::model::BATTERY_EMPTY_V`). The EMA moves over ~10 s, so a
+    /// (6.6 V — `vibe_control::model::BATTERY_EMPTY_V`). The EMA moves over ~10 s, so a
     /// load sag cannot trip it.
     pub battery_empty_shutdown: bool,
 

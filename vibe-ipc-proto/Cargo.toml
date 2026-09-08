@@ -1,5 +1,5 @@
 [package]
-name = "duck-ipc-proto"
+name = "vibe-ipc-proto"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

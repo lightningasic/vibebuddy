@@ -27,7 +27,7 @@
 use std::time::Duration;
 
 use async_trait::async_trait;
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 
 /// What went wrong, in terms a caller can act on.
 pub type PadResult<T> = Result<T, String>;

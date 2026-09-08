@@ -4,9 +4,9 @@
 # docs/design/architecture.md §1. `robotd`, `btd` and `mediad` are all siblings now.
 [workspace]
 resolver = "3"
-members = ["btd", "configd", "duck-control", "duck-detect", "duck-ether", "duck-ipc-proto", "duckctl", "kinematics", "mediad", "odometry", "padd", "pet-detect", "sounds", "tof", "updater", "robotctl", "robotd", "robotd-params", "test-support", "xtask"]
+members = ["btd", "configd", "vibe-control", "vibe-detect", "vibe-ether", "vibe-ipc-proto", "vibectl", "kinematics", "mediad", "odometry", "padd", "pet-detect", "sounds", "tof", "updater", "robotctl", "robotd", "robotd-params", "test-support", "xtask"]
 
-# Everything except `duckctl`, and that exception is the whole reason this key exists.
+# Everything except `vibectl`, and that exception is the whole reason this key exists.
 #
 # `cargo board --bins` — in `dev-push.sh` and in the release workflow — builds every default
 # member for aarch64, which is right for a robot's daemons and wrong for the client a developer
@@ -17,8 +17,8 @@ members = ["btd", "configd", "duck-control", "duck-detect", "duck-ether", "duck-
 # them and they would have to be kept in step by hand, which is the failure this repo keeps
 # writing down. One list here, and a new daemon is picked up by both without anybody remembering.
 #
-# `--workspace` is unaffected, so CI still lints and tests `duckctl` exactly as before.
-default-members = ["btd", "configd", "duck-control", "duck-detect", "duck-ipc-proto", "kinematics", "mediad", "odometry", "padd", "pet-detect", "sounds", "tof", "updater", "robotctl", "robotd", "robotd-params", "test-support", "xtask"]
+# `--workspace` is unaffected, so CI still lints and tests `vibectl` exactly as before.
+default-members = ["btd", "configd", "vibe-control", "vibe-detect", "vibe-ipc-proto", "kinematics", "mediad", "odometry", "padd", "pet-detect", "sounds", "tof", "updater", "robotctl", "robotd", "robotd-params", "test-support", "xtask"]
 
 # ONNX Runtime, which robotd dlopens to run a policy. One source of truth: `xtask package`
 # bakes these into the release's preinstall hook, and a test asserts scripts/setup-board.sh
@@ -31,7 +31,7 @@ default-members = ["btd", "configd", "duck-control", "duck-detect", "duck-ipc-pr
 floor  = "1.23"
 target = "1.28.0"
 
-# Rockchip's NPU runtime, which `duck-detect` dlopens to run the duck detector. Same shape as the
+# Rockchip's NPU runtime, which `vibe-detect` dlopens to run the duck detector. Same shape as the
 # ONNX Runtime pin above and for the same reason — `scripts/setup-npu.sh` is fetched standalone with
 # curl and cannot read this file, so it carries a literal and a test asserts the two agree.
 #

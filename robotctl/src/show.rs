@@ -12,7 +12,7 @@
 
 use std::fmt::Write as _;
 
-use duck_ipc_proto::{Outcome, Phase, RunEvent, RunRecord, RunTranscript};
+use vibe_ipc_proto::{Outcome, Phase, RunEvent, RunRecord, RunTranscript};
 
 /// How far past the run's last event to keep reading the journal.
 ///
@@ -383,7 +383,7 @@ fn short(text: &str, n: usize) -> String {
 ///
 /// The index half of `git log` / `git show`: this is where someone finds the run they then ask
 /// `update show` about, so the number has to be on it.
-pub fn log_line(entry: &duck_ipc_proto::LogEntry) -> String {
+pub fn log_line(entry: &vibe_ipc_proto::LogEntry) -> String {
     let run = match entry.run {
         Some(run) => format!("{run:>4}"),
         // Entries from before transcripts existed, and the rare attempt that failed before one
@@ -411,7 +411,7 @@ pub fn log_line(entry: &duck_ipc_proto::LogEntry) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use duck_ipc_proto::ComponentId;
+    use vibe_ipc_proto::ComponentId;
 
     fn at(at: i64, event: RunEvent) -> RunRecord {
         RunRecord { at, event }
@@ -612,7 +612,7 @@ mod tests {
     /// An old log entry has no run to point at, and the column must still line up.
     #[test]
     fn a_log_line_without_a_run_keeps_its_column() {
-        let entry = duck_ipc_proto::LogEntry {
+        let entry = vibe_ipc_proto::LogEntry {
             at: 1_700_000_000,
             component: ComponentId::new("daemon"),
             from: None,
@@ -626,7 +626,7 @@ mod tests {
             log_line(&entry)
         );
 
-        let numbered = duck_ipc_proto::LogEntry {
+        let numbered = vibe_ipc_proto::LogEntry {
             run: Some(42),
             ..entry
         };

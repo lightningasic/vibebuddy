@@ -1,7 +1,7 @@
 //! A radio for simulated ducks: what one advertises, the ones near it hear.
 //!
 //! ```text
-//! duck-ether --duck duck-a=/run/duck-a/robotd.sock@7801 \
+//! vibe-ether --duck duck-a=/run/duck-a/robotd.sock@7801 \
 //!            --duck duck-b=/run/duck-b/robotd.sock@7802
 //! ```
 //!
@@ -51,7 +51,7 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 use clap::Parser;
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::{TcpStream, UnixStream};
 use tokio::sync::Mutex;

@@ -79,8 +79,8 @@ the daemons — one crate each, one unit each, all in the same release artifact
   tof/            tofd: the head's 8×8 depth sensor. Publishes frames, reads nothing
 
 the libraries they drive — no sockets, no systemd, nothing starts them
-  duck-ipc-proto/ the wire contract
-  duck-control/   the control core: model · bus · IMU · observations · policy · safety
+  vibe-ipc-proto/ the wire contract
+  vibe-control/   the control core: model · bus · IMU · observations · policy · safety
   kinematics/     the MJCF model and forward kinematics; head and hand chains
   odometry/       where the robot has been, from foot contacts and the IMU
   sounds/         synthesis, per-robot voice personality, the chorale's score
@@ -89,7 +89,7 @@ the libraries they drive — no sockets, no systemd, nothing starts them
 
 the tools
   robotctl/       the local CLI, including `monitor`
-  duckctl/        the laptop-side client — never shipped, never cross-built
+  vibectl/        the laptop-side client — never shipped, never cross-built
   xtask/          package · sign · promote — build tooling, never shipped
   test-support/   signed-release fixtures for tests; never shipped
 
@@ -109,7 +109,7 @@ docs/           robot/ (using one) · design/ (how it works) · project/ (roadma
 ```
 
 Services talk over unix sockets, JSON-RPC 2.0 one object per line. The contract lives in
-`duck-ipc-proto`, which depends on serde and semver and nothing else — so `btd` and `robotd`
+`vibe-ipc-proto`, which depends on serde and semver and nothing else — so `btd` and `robotd`
 never inherit the update engine's http/tar/crypto tree.
 
 [`docs/design/architecture.md`](docs/design/architecture.md) §1 has what each service is and why it is its own

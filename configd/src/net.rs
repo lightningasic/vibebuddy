@@ -5,12 +5,12 @@
 //! That is less code, better security, and one less thing to migrate — and it survives
 //! `configd` being restarted, updated or rolled back.
 //!
-//! The trait exists for the same reason `duck-control` has `RobotIo`: the suite runs on a
+//! The trait exists for the same reason `vibe-control` has `RobotIo`: the suite runs on a
 //! laptop with no hardware, no network and no D-Bus, and the logic worth testing is the
 //! dispatch and authorisation around this, not NM itself.
 
 use async_trait::async_trait;
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 
 /// What went wrong, in terms a caller can act on.
 pub type NetResult<T> = Result<T, String>;

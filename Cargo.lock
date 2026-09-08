@@ -496,7 +496,6 @@ dependencies = [
  "bluer",
  "clap",
  "dbus",
- "duck-ipc-proto",
  "futures",
  "serde_json",
  "tempfile",
@@ -504,6 +503,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "uuid",
+ "vibe-ipc-proto",
 ]
 
 [[package]]
@@ -749,7 +749,6 @@ version = "0.11.0"
 dependencies = [
  "async-trait",
  "clap",
- "duck-ipc-proto",
  "futures",
  "libc",
  "serde",
@@ -759,6 +758,7 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber",
+ "vibe-ipc-proto",
  "zbus",
 ]
 
@@ -1110,72 +1110,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d4b8a88685455ed29a21542a33abd9cb6510b6b129abadabdcef0f4c55bc8f61"
 dependencies = [
  "litrs",
-]
-
-[[package]]
-name = "duck-control"
-version = "0.11.0"
-dependencies = [
- "duck-ipc-proto",
- "libloading 0.8.9",
- "ort",
- "rustypot",
- "serde",
- "serde_json",
- "serialport",
- "thiserror 2.0.19",
- "tracing",
-]
-
-[[package]]
-name = "duck-detect"
-version = "0.11.0"
-dependencies = [
- "anyhow",
- "clap",
- "image",
- "libloading 0.9.0",
- "ort",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
-name = "duck-ether"
-version = "0.11.0"
-dependencies = [
- "clap",
- "duck-ipc-proto",
- "serde_json",
- "thiserror 2.0.19",
- "tokio",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
-name = "duck-ipc-proto"
-version = "0.11.0"
-dependencies = [
- "libc",
- "semver",
- "serde",
- "serde_json",
- "tempfile",
-]
-
-[[package]]
-name = "duckctl"
-version = "0.11.0"
-dependencies = [
- "btd",
- "btleplug",
- "clap",
- "duck-ipc-proto",
- "futures",
- "serde_json",
- "tokio",
- "webbrowser",
 ]
 
 [[package]]
@@ -2695,8 +2629,6 @@ dependencies = [
  "async-stream",
  "axum",
  "clap",
- "duck-detect",
- "duck-ipc-proto",
  "eventsource-stream",
  "futures-util",
  "glib",
@@ -2714,6 +2646,8 @@ dependencies = [
  "tokio-tungstenite 0.30.0",
  "tracing",
  "tracing-subscriber",
+ "vibe-detect",
+ "vibe-ipc-proto",
 ]
 
 [[package]]
@@ -3157,8 +3091,8 @@ dependencies = [
 name = "odometry"
 version = "0.11.0"
 dependencies = [
- "duck-ipc-proto",
  "kinematics",
+ "vibe-ipc-proto",
 ]
 
 [[package]]
@@ -3222,7 +3156,6 @@ name = "padd"
 version = "0.11.0"
 dependencies = [
  "clap",
- "duck-ipc-proto",
  "evdev",
  "gilrs",
  "libc",
@@ -3231,6 +3164,7 @@ dependencies = [
  "serde_json",
  "tracing",
  "tracing-subscriber",
+ "vibe-ipc-proto",
 ]
 
 [[package]]
@@ -3784,7 +3718,6 @@ version = "0.11.0"
 dependencies = [
  "clap",
  "clap_complete",
- "duck-ipc-proto",
  "kinematics",
  "libc",
  "ratatui",
@@ -3795,6 +3728,7 @@ dependencies = [
  "tempfile",
  "toml 0.9.12+spec-1.1.0",
  "toml_edit 0.23.10+spec-1.0.0",
+ "vibe-ipc-proto",
 ]
 
 [[package]]
@@ -3803,8 +3737,6 @@ version = "0.11.0"
 dependencies = [
  "arc-swap",
  "clap",
- "duck-control",
- "duck-ipc-proto",
  "kinematics",
  "libc",
  "minisign",
@@ -3825,6 +3757,8 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "updater",
+ "vibe-control",
+ "vibe-ipc-proto",
  "zstd",
 ]
 
@@ -3832,7 +3766,6 @@ dependencies = [
 name = "robotd-params"
 version = "0.11.0"
 dependencies = [
- "duck-ipc-proto",
  "kinematics",
  "serde",
  "serde_json",
@@ -3841,6 +3774,7 @@ dependencies = [
  "toml 0.9.12+spec-1.1.0",
  "toml_edit 0.23.10+spec-1.0.0",
  "tracing",
+ "vibe-ipc-proto",
 ]
 
 [[package]]
@@ -4682,7 +4616,6 @@ dependencies = [
  "bmi088",
  "cc",
  "clap",
- "duck-ipc-proto",
  "libc",
  "linux-embedded-hal",
  "serde",
@@ -4690,6 +4623,7 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber",
+ "vibe-ipc-proto",
 ]
 
 [[package]]
@@ -5091,7 +5025,6 @@ dependencies = [
  "async-trait",
  "axum",
  "clap",
- "duck-ipc-proto",
  "fs4",
  "futures-util",
  "humantime-serde",
@@ -5112,6 +5045,7 @@ dependencies = [
  "toml 1.1.3+spec-1.1.0",
  "tracing",
  "tracing-subscriber",
+ "vibe-ipc-proto",
  "zstd",
 ]
 
@@ -5174,6 +5108,72 @@ name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
+
+[[package]]
+name = "vibe-control"
+version = "0.11.0"
+dependencies = [
+ "libloading 0.8.9",
+ "ort",
+ "rustypot",
+ "serde",
+ "serde_json",
+ "serialport",
+ "thiserror 2.0.19",
+ "tracing",
+ "vibe-ipc-proto",
+]
+
+[[package]]
+name = "vibe-detect"
+version = "0.11.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "image",
+ "libloading 0.9.0",
+ "ort",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "vibe-ether"
+version = "0.11.0"
+dependencies = [
+ "clap",
+ "serde_json",
+ "thiserror 2.0.19",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "vibe-ipc-proto",
+]
+
+[[package]]
+name = "vibe-ipc-proto"
+version = "0.11.0"
+dependencies = [
+ "libc",
+ "semver",
+ "serde",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
+name = "vibectl"
+version = "0.11.0"
+dependencies = [
+ "btd",
+ "btleplug",
+ "clap",
+ "futures",
+ "serde_json",
+ "tokio",
+ "vibe-ipc-proto",
+ "webbrowser",
+]
 
 [[package]]
 name = "walkdir"

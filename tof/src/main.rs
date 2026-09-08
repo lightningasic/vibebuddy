@@ -34,7 +34,7 @@ use std::time::{Duration, Instant};
 
 use anyhow::{Context, Result};
 use clap::Parser;
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::{UnixListener, UnixStream};
 
@@ -180,7 +180,7 @@ async fn main() -> std::process::ExitCode {
     // `scripts/dev-push.sh` read the release a daemon is actually running from.
     // `tofd` was the one daemon that published nothing, so both reported it as
     // silent — the exact gap the macro was written for, one daemon later.
-    duck_ipc_proto::log_startup_identity!("tofd");
+    vibe_ipc_proto::log_startup_identity!("tofd");
 
     let args = Args::parse();
     tracing::info!(socket = %args.socket.display(), hz = args.hz, "starting");
@@ -411,7 +411,7 @@ fn fake_loop(
 
 /// Frames from a simulated body, at the sensor's own rate.
 ///
-/// Newline-delimited JSON over TCP, the same link `duck_control::sim` uses for the servo bus — one
+/// Newline-delimited JSON over TCP, the same link `vibe_control::sim` uses for the servo bus — one
 /// handshake, then a request per frame. A simulator that goes away is one missed frame and a
 /// reconnect, not a dead daemon: MuJoCo is restarted whenever the number of ducks changes, and a
 /// duck is expected to live through that.

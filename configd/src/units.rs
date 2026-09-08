@@ -14,7 +14,7 @@
 //!
 //! Not asked of systemd and not inferred from `/proc`: **each daemon publishes its own identity at
 //! startup**, to `/run/<service>/identity.json`, and this reads it. See
-//! [`duck_ipc_proto::Identity`] for why that beats inspecting a process from outside — briefly, a
+//! [`vibe_ipc_proto::Identity`] for why that beats inspecting a process from outside — briefly, a
 //! process knows its version, its git revision and its own exe, and needs no privilege to say so.
 //!
 //! What is left for systemd is the question only systemd can answer: whether the unit is running.
@@ -23,7 +23,7 @@
 //! unit with no identity* and a *running daemon too old to publish one* both report nothing, and the
 //! unit state is what distinguishes them.
 
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 
 /// The unit that turns a pad into intents.
 pub const PADD: &str = "padd.service";

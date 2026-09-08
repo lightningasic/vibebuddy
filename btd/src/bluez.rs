@@ -343,7 +343,7 @@ async fn serve_on_an_adapter(
                         // Logged because this read is the pairing trigger, so "did the central get
                         // this far" is the first question when a client hangs.
                         tracing::debug!(peer = %req.device_address, "version read");
-                        async move { Ok(vec![duck_ipc_proto::API_VERSION as u8]) }.boxed()
+                        async move { Ok(vec![vibe_ipc_proto::API_VERSION as u8]) }.boxed()
                     }),
                     ..Default::default()
                 }),
@@ -351,7 +351,7 @@ async fn serve_on_an_adapter(
                     write: true,
                     // Write-without-response as well: a chunked request needs no ATT
                     // acknowledgement per chunk. A client that wants a *refusal* to be visible
-                    // must use the acknowledged form, which is why `duckctl` does.
+                    // must use the acknowledged form, which is why `vibectl` does.
                     write_without_response: true,
                     encrypt_write: require_pairing,
                     // No `.await` between receiving a chunk and enqueueing it. BlueZ dispatches
@@ -567,7 +567,7 @@ impl std::fmt::Display for Advertised {
 ///
 /// - **BlueZ caches it over the advertised name.** `Device1.Name` is what `btleplug` reports, so
 ///   on Linux a robot is `duck-5b21` until the first connection and `radxa-zero3` after it, and
-///   `duckctl --name duck-5b21` then finds nothing. Two scans a minute apart disagreed;
+///   `vibectl --name duck-5b21` then finds nothing. Two scans a minute apart disagreed;
 /// - **CoreBluetooth keeps both**, and `btleplug` joins them as `radxa-zero3 [duck-5b21]`;
 /// - **a phone's Bluetooth settings shows the GAP name**, which is the case that matters most and
 ///   the one nothing in this repo could see.
@@ -616,7 +616,7 @@ async fn advertise(
             tracing::warn!(
                 error = %e,
                 "BlueZ refused the advertisement carrying the address; retrying without it, so \
-                 `duckctl scan` will show this robot with no address at all"
+                 `vibectl scan` will show this robot with no address at all"
             );
             adapter.advertise(advertisement(None)).await
         }
@@ -688,13 +688,13 @@ async fn ask_name(sockets: &Sockets, fallback: &str) -> String {
     match crate::upstream::ask(
         "configd",
         socket,
-        &duck_ipc_proto::Call::SystemInfo,
+        &vibe_ipc_proto::Call::SystemInfo,
         ASK_TIMEOUT,
     )
     .await
     .and_then(|response| {
         response
-            .result_as::<duck_ipc_proto::SystemInfoResult>()
+            .result_as::<vibe_ipc_proto::SystemInfoResult>()
             .map_err(|e| e.to_string())
     }) {
         Ok(info) => info.name,
@@ -723,13 +723,13 @@ async fn ask_address(sockets: &Sockets, last: Option<Ipv4Addr>) -> Option<Ipv4Ad
     match crate::upstream::ask(
         "configd",
         socket,
-        &duck_ipc_proto::Call::NetStatus,
+        &vibe_ipc_proto::Call::NetStatus,
         ASK_TIMEOUT,
     )
     .await
     .and_then(|response| {
         response
-            .result_as::<duck_ipc_proto::NetStatusResult>()
+            .result_as::<vibe_ipc_proto::NetStatusResult>()
             .map_err(|e| e.to_string())
     }) {
         // Parsed rather than trusted: `ip4` is whatever NetworkManager put in `address-data`, and a

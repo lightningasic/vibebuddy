@@ -1,6 +1,6 @@
 //! Finding other Microducks in this Microduck's camera, on the NPU.
 //!
-//! The model is trained in [`duck_detector`](https://github.com/pollen-robotics/duck_detector) and
+//! The model is trained in [`vibe_detector`](https://github.com/pollen-robotics/vibe_detector) and
 //! arrives here as an INT8 `.rknn`: one class, 320×320 in, 2100 candidate boxes out. This crate is
 //! the three things between a camera frame and a bounding box — the letterbox, the runtime, and the
 //! decode — plus `duck-bench`, which measures them on a real board.

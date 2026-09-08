@@ -18,7 +18,7 @@ description = "Gamepad → robot intents"
 # it reads the same device node gilrs reads, for `src/tap.rs`, and brings no C with it.
 
 [dependencies]
-duck-ipc-proto = { path = "../duck-ipc-proto" }
+vibe-ipc-proto = { path = "../vibe-ipc-proto" }
 # Which button runs which skill, from the same `robotd.toml` everything else is configured in —
 # so `robotctl configure` stays the one editor, and a robot's configuration is one file to back
 # up. Pure serde and toml, and read once at startup: this daemon still holds no privileged access
@@ -26,7 +26,7 @@ duck-ipc-proto = { path = "../duck-ipc-proto" }
 robotd-params = { path = "../robotd-params" }
 clap = { workspace = true, features = ["derive"] }
 gilrs = "0.11"
-# Only to serialise the tap's own lines; the wire types themselves live in duck-ipc-proto.
+# Only to serialise the tap's own lines; the wire types themselves live in vibe-ipc-proto.
 serde.workspace = true
 serde_json.workspace = true
 tracing.workspace = true

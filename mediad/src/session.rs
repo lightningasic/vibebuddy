@@ -13,7 +13,7 @@
 //! - A subscription works with no special case. It is a stream of notifications on an open
 //!   connection, and every one has to reach the peer — which correlating replies to requests would
 //!   break, keeping the first and dropping the rest.
-//! - Adding a method to the API costs nothing here. `duck-ipc-proto` stays the only place a method
+//! - Adding a method to the API costs nothing here. `vibe-ipc-proto` stays the only place a method
 //!   is defined, and this file does not grow a case for it.
 //!
 //! **It does not authenticate.** `remote-webrtc.md` §4: there is no gate on the robot. A LAN peer
@@ -21,7 +21,7 @@
 //! before arriving. `route::permits` refuses `system.authenticate` by name rather than answering
 //! it, so a client that asks gets a clear no instead of a lie.
 
-use duck_ipc_proto as proto;
+use vibe_ipc_proto as proto;
 use tokio::sync::mpsc;
 
 use crate::route::{self, Route};
@@ -189,7 +189,7 @@ async fn handle(line: &str, pool: &mut Pool, video: &Video) -> Option<String> {
 }
 
 /// One refusal, as a line. Built through [`proto::Response`] rather than by hand so the envelope
-/// has exactly one definition — the same reason `duck-ipc-proto` exists.
+/// has exactly one definition — the same reason `vibe-ipc-proto` exists.
 fn error_line(id: Option<proto::Id>, error: proto::Error) -> String {
     // A `Response` cannot fail to serialise: every field is a `String`, an `Id` or an `Error`.
     serde_json::to_string(&proto::Response::err(id, error)).expect("Response serialises")

@@ -131,10 +131,10 @@ oversight.
 
 `version`, and `update` with `check`, `apply`, `status`, `versions`, `log`, `rollback`, `select`
 and `watch` — the same words `robotctl update` uses, so a command learned on the robot works over
-the radio. Params are built from `duck_ipc_proto`'s own types rather than hand-written JSON, which
+the radio. Params are built from `vibe_ipc_proto`'s own types rather than hand-written JSON, which
 is what `call` left to whoever was typing: `update.apply`'s target is an externally tagged enum, so
 `--ref` and `--version` are different JSON *shapes*, and a wrong one is a parse error with nothing
-in it to act on. [`duckctl.md`](../robot/duckctl.md) has every command.
+in it to act on. [`vibectl.md`](../robot/vibectl.md) has every command.
 
 Progress prints as one line per event on stderr, which that page already promised and the tool did
 not do.

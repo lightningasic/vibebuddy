@@ -9,7 +9,7 @@ a **credential that names an account**, and a **service to present it to**.
 
 **Built so far** (2026-09-02): §2 — the account. `account.login`, `account.status` and
 `account.logout` are served by `updaterd` and reachable locally, over BLE and over a WebRTC
-datachannel; `robotctl account login` prints a code and waits, `duckctl account login` prints one
+datachannel; `robotctl account login` prints a code and waits, `vibectl account login` prints one
 and hangs up. The credential lands in `/etc/robot/hf-token` and renews itself. Nothing consumes it
 yet — that is §3, and it is the next slice.
 
@@ -93,8 +93,8 @@ which were learned the expensive way:
 
   - `robotctl account login` opens nothing, because it runs **on the robot**, which has no
     display. It prints the code and waits.
-  - `duckctl account login` prints the code and *then* opens the page, because it runs on your
-    own machine — where `duckctl open` already launches a browser. `--no-open` suppresses it, and
+  - `vibectl account login` prints the code and *then* opens the page, because it runs on your
+    own machine — where `vibectl open` already launches a browser. `--no-open` suppresses it, and
     so does stderr not being a terminal, because a script that opens a browser window on whoever
     runs it is a surprise. A browser that will not launch is a warning appended to the code, never
     an error replacing it.
@@ -640,7 +640,7 @@ page has none left; the Space copy keeps it, which is how the page knows no robo
 
 The Space is a deploy target — `pollen-robotics/microduck-console` — and
 `scripts/publish-console.sh` is what puts a page there, along with the `Dockerfile` and
-`entrypoint.sh` that serve it. It substitutes the API version from `duck-ipc-proto`, stamps the
+`entrypoint.sh` that serve it. It substitutes the API version from `vibe-ipc-proto`, stamps the
 build, and refuses to publish a page that has lost either the port token (which would make the
 Space's copy try to open a WebSocket) or the client-id token (which would leave it unable to sign
 anybody in). By hand while there is one Space; by CI when that stops being true.

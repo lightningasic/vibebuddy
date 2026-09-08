@@ -11,14 +11,14 @@ Companion to [`architecture.md`](../design/architecture.md) (what we're building
 | | |
 |---|---|
 | `updater/` | engine, verification, store, journal, hooks, preflight, GitHub/HF/local sources, IPC server, systemd unit — **done** |
-| `duck-control/` | robot model · bus · IMU · `RobotIo` · observations · ONNX policy · safety. A library: no tokio, no sockets, no systemd |
-| `duck-ipc-proto/` | wire contract for every `*.` namespace, at API v14 — serde/serde_json/semver only, so nothing on the recovery path pulls the engine's tree |
+| `vibe-control/` | robot model · bus · IMU · `RobotIo` · observations · ONNX policy · safety. A library: no tokio, no sockets, no systemd |
+| `vibe-ipc-proto/` | wire contract for every `*.` namespace, at API v14 — serde/serde_json/semver only, so nothing on the recovery path pulls the engine's tree |
 | `robotd/` | a 50 Hz loop driving walk/stand/roll through the safety layer, intents, health from deadline adherence and policy state. Since M3: kinematics, contact odometry, gaze IK, the voice, the ToF theremin and the chorale, all hung off the same tick ([`robotd-design.md`](../design/robotd-design.md) §4.4–4.5) |
 | `padd/` | gamepad → intents, as an ordinary socket client; ships in the release and runs as its own unit from boot, so pairing a pad is the only step |
-| `robotctl/` | the operator CLI — `update`, `health`, `version`, `monitor`, `net`, `system`, `robot`, `pad`, `configure`, `quack`, `chorale`, `theremin`, `completions`; depends on `duck-ipc-proto`, not `updater`, so it stays on the recovery path |
+| `robotctl/` | the operator CLI — `update`, `health`, `version`, `monitor`, `net`, `system`, `robot`, `pad`, `configure`, `quack`, `chorale`, `theremin`, `completions`; depends on `vibe-ipc-proto`, not `updater`, so it stays on the recovery path |
 | `configd/` | wifi over NetworkManager, robot name and the identity derived from the SoC serial, pairing PIN, reboot, unit reporting. `--fake-net` serves the whole surface off-board |
 | `btd/` | BLE transport adapter — framing, the routed subset, the BlueZ backend, a pairing agent. Works on hardware, unencrypted by default — [`app-path-design.md`](../design/app-path-design.md) §5.5 |
-| `duckctl/` | the robot from a laptop. BLE today; named for the robot rather than the radio |
+| `vibectl/` | the robot from a laptop. BLE today; named for the robot rather than the radio |
 | `mediad/` | camera, mic, encode and the WebRTC gateway, plus the console it serves. **Streaming to a browser on the LAN from a Radxa Zero 3W**, hardware H.264 through `mpph264enc`, `control` datachannel alongside |
 | `tof/` | `tofd`: the head's 8×8 ToF matrix on its own socket at 15 Hz. A board with no sensor fitted runs it anyway and says so |
 | `xtask/` | package · sign · promote — byte-identical promotion verified |
@@ -54,7 +54,7 @@ Each has a test that says "done", because milestones without one drift.
 
 The updater got something real to gate against, and the team got a shared crate boundary:
 a `robotd` skeleton whose state is atomics rather than a mutex (a robot whose loop is wedged
-must still be able to answer *I am not healthy*), `duck-ipc-proto` extracted so nothing on the
+must still be able to answer *I am not healthy*), `vibe-ipc-proto` extracted so nothing on the
 recovery path links the engine's http/tar/crypto tree, a health gate that is a real socket
 probe, one source of truth for the `robotd` socket, an identity line every daemon logs at
 `warn` before anything can fail, and first-install bootstrap through the ordinary engine.
@@ -82,7 +82,7 @@ code — the API path the engine uses works for public repos too
 
 ### M3 — `robotd` for real · **done**, in two slices
 
-`robotd` **replaced** `microduck_runtime` by extracting its control core into `duck-control`
+`robotd` **replaced** `microduck_runtime` by extracting its control core into `vibe-control`
 rather than reimplementing it, so parity arrived as a consequence of the extraction instead of
 as a race against a moving target. Slice 1 was a real 50 Hz Dynamixel loop holding its pose —
 which is what makes `robot.health` mean *the loop is meeting its deadline*. Slice 2 was one

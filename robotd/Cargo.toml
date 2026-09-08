@@ -6,8 +6,8 @@ license.workspace = true
 description = "Robot control daemon — skeleton"
 
 [dependencies]
-duck-ipc-proto = { path = "../duck-ipc-proto" }
-duck-control = { path = "../duck-control" }
+vibe-ipc-proto = { path = "../vibe-ipc-proto" }
+vibe-control = { path = "../vibe-control" }
 robotd-params = { path = "../robotd-params" }
 kinematics = { path = "../kinematics" }
 odometry = { path = "../odometry" }
