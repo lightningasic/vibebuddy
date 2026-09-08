@@ -1,0 +1,49 @@
+# Vibe Chicken hardware descriptor
+#
+# HAL manifest for the Vibe Chicken — 25 cm biped, 15 DOF.
+# Loaded by robotd at startup; see REQ-HAL-001..004 in docs/product/PRD-VBOS-001.md.
+
+name: "Vibe Chicken"
+version: 1.0
+
+bus:
+  type: "dynamixel"
+  rate: 50          # Hz — control loop frequency
+  baud: 1000000      # 1 Mbps
+
+joints:
+  - id: 20  name: "left_hip"    type: "revolute"  limit: [-90, 90]
+  - id: 21  name: "left_knee"   type: "revolute"  limit: [0, 120]
+  - id: 22  name: "left_ankle"  type: "revolute"  limit: [-60, 60]
+  - id: 23  name: "right_hip"   type: "revolute"  limit: [-90, 90]
+  - id: 24  name: "right_knee"  type: "revolute"  limit: [0, 120]
+  - id: 25  name: "right_ankle" type: "revolute"  limit: [-60, 60]
+  # ... 共 15 个关节 (腿 10 + 颈/头/嘴 5)
+
+imu:
+  bus: "dynamixel"
+  id: 200
+  rate: 50
+
+perception:
+  camera: { type: "mipi", resolution: [1280, 720] }
+  lidar: { type: "tof", range_m: 8.0 }
+  tof8x8: { bus: "i2c", id: 0x29 }
+  imus: 2
+
+compute:
+  soc: "rk3566"
+  ram_gb: 1
+  storage_gb: 32
+  npu: "rockchip-rknn"
+
+power:
+  battery: "NP-F550"
+  capacity_mah: 2600
+  runtime_min: 60
+
+policy:
+  obs_dim: 61
+  action_dim: 15
+  rate: 50
+  format: "onnx"

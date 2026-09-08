@@ -1,0 +1,43 @@
+# Vibe Cat hardware descriptor
+#
+# HAL manifest for the Vibe Cat — desktop companion, 13+ DOF quadruped/crouch.
+# Loaded by robotd at startup; see REQ-HAL-001..004 in docs/product/PRD-VBOS-001.md.
+
+name: "Vibe Cat"
+version: 1.0
+
+bus:
+  type: "dynamixel"
+  rate: 50          # Hz — control loop frequency
+  baud: 1000000      # 1 Mbps
+
+joints:
+  - id: 20  name: "front_left_shoulder" type: "revolute"  limit: [-90, 90]
+  - id: 21  name: "front_left_elbow"    type: "revolute"  limit: [0, 120]
+  - id: 22  name: "front_right_shoulder" type: "revolute" limit: [-90, 90]
+  - id: 23  name: "front_right_elbow"   type: "revolute"  limit: [0, 120]
+  # ... 共 13+ 个关节 (四肢 + 颈/头)
+
+imu:
+  bus: "dynamixel"
+  id: 200
+  rate: 50
+
+perception:
+  camera: { type: "mipi", resolution: [1280, 720] }
+  mic: { type: "i2s" }
+
+compute:
+  soc: "rk3566"
+  ram_gb: 1
+  storage_gb: 32
+
+power:
+  battery: "li-ion"
+  runtime_min: 120
+
+policy:
+  obs_dim: 61
+  action_dim: 13
+  rate: 50
+  format: "onnx"

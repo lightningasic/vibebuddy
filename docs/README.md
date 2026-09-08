@@ -1,10 +1,10 @@
 # Docs
 
-The [README](../README.md) is the front door — what a microduck is, and where to go. If you have
+The [README](../README.md) is the front door — what a VibeBuddy OS robot is, and where to go. If you have
 one in front of you and want to drive it, start at the [cheat sheet](robot/cheatsheet.md).
 
 It is also where a **publisher** starts: [`policy-manifest.md`](policy-manifest.md) is the
-contract for a `manifest.json` beside a microduck `.onnx`, and it owns every field. The design
+contract for a `manifest.json` beside a robot `.onnx`, and it owns every field. The design
 docs give the reasoning and point at it.
 
 ## `robot/` — you have a robot
@@ -19,6 +19,17 @@ docs give the reasoning and point at it.
 | [`vibectl.md`](robot/vibectl.md) | Every `vibectl` command — the robot from a laptop, over Bluetooth. |
 | [`install-dev.md`](robot/install-dev.md) | Setting up a board for development, from nothing. |
 | [`install-by-hand.md`](robot/install-by-hand.md) | The same install as separate commands, for testing one step at a time. |
+
+## `product/` — what we are building
+
+Product-level documents: the PRD that aligns the multi-form roadmap (Chicken / Cat / Doge) and the
+hardware descriptors that make one OS image drive every form. These change with the roadmap; the
+design docs below give the engineering reasoning.
+
+| | |
+|---|---|
+| [`PRD-VBOS-001.md`](product/PRD-VBOS-001.md) | The VibeBuddy OS product requirements: services, HAL, sim2real, acceptance criteria, roadmap. |
+| `hal/manifests/` | Hardware descriptor files (chicken.yaml / cat.yaml / doge.yaml) — the HAL manifests loaded at startup. |
 
 ## `design/` — you are changing the daemon
 

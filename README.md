@@ -1,35 +1,31 @@
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/c2f7c245-8217-46a1-8d1e-e0ba967cd969" alt="microduck" width="820">
+  <img src="https://github.com/user-attachments/assets/c2f7c245-8217-46a1-8d1e-e0ba967cd969" alt="vibebuddy-os" width="820">
 </p>
 
-<h1 align="center">Microduck</h1>
+<h1 align="center">VibeBuddy OS</h1>
 
 <p align="center">
-  <em>A tiny biped robot that moves using reinforcement learning policies.</em>
+  <em>A multi-form desktop robot operating system, driven by reinforcement learning policies.</em>
 </p>
 
 <p align="center">
-  <a href="https://pollen-robotics.com/microduck"><b>Get yours here</b></a> ·
+  <a href="https://iclawmini.com/vibebuddy.html"><b>Our robots</b></a> ·
   <a href="docs/robot/cheatsheet.md">Cheat sheet</a> ·
   <a href="https://github.com/pollen-robotics/microduck_rl">Training the policies</a> ·
   <a href="docs/design/architecture.md">How it works</a> ·
   <a href="CONTRIBUTING.md">Contributing</a>
 </p>
 
-<p align="center">
-  <a href="https://github.com/pollen-robotics/microduck/actions/workflows/ci.yml"><img src="https://github.com/pollen-robotics/microduck/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-</p>
-
 ---
 
-**This repo is the duck's brain.** About 25 cm and 800 g of robot, run by a handful of daemons on a
-Rockchip RK3566: a 50 Hz control loop driving fifteen servos from neural policies, the radios and
-the camera, and the update machinery that gets new software onto a robot without bricking it.
+**Forked from [Microduck](https://github.com/pollen-robotics/microduck) and rebuilt as an independent,
+hardware-agnostic robot operating system for the Vibe family.** The control core that drove a 25 cm
+biped duck now powers a growing set of robot forms — chicken, cat, doge and whatever comes next — run
+by the same handful of daemons on a Rockchip RK3566: a 50 Hz control loop driving servos from neural
+policies, the radios and the camera, and the update machinery that gets new software onto a robot
+without bricking it.
 
-Everything you need to run a Microduck is here. **If you want one,
-[get yours here](https://pollen-robotics.com/microduck).**
-
-The policies it runs are trained next door, in
+Everything you need to run a Vibe robot is here. The policies it runs are trained next door, in
 **[microduck_rl](https://github.com/pollen-robotics/microduck_rl)** — MuJoCo and PPO, the sim2real
 recipe, and the export to ONNX that this repo loads.
 
@@ -67,7 +63,7 @@ It also sits, kicks a ball, rolls forward on command, and quacks in a voice that
 
 ## Where to find things
 
-### You have a duck
+### You have a robot
 
 | | |
 |---|---|
@@ -85,7 +81,7 @@ It also sits, kicks a ball, rolls forward on command, and quacks in a voice that
 | [Set up a dev board](docs/robot/install-dev.md) | From a blank board to a robot that takes branch builds. |
 | [Dev cheat sheet](docs/robot/cheatsheet-dev.md) | Branch builds, release candidates, driving from a laptop, and the restart traps after an update. |
 | [Push your branch](docs/robot/dev-push.md) | Build on your machine, install over ssh, about a minute. |
-| [The simulated duck](docs/robot/simulation.md) | No robot on the desk? `scripts/duck-sim` runs the real daemons against a body in MuJoCo — one duck in a window, or four as machines you log into. |
+| [The simulated robot](docs/robot/simulation.md) | No robot on the desk? `scripts/duck-sim` runs the real daemons against a body in MuJoCo — one body in a window, or four as machines you log into. |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Building, testing, layout, conventions, releasing. |
 | [Docs index](docs/README.md) | Everything, including the design pages and the open problems. |
 
@@ -101,6 +97,7 @@ same calls.
 The interesting decisions are written down: [`docs/design/`](docs/design/) is why things are the
 way they are, and [`docs/project/`](docs/project/) is what has gone wrong and what would close it.
 
-## A note on ducks
+## License
 
-No duck was harmed in the making of this robot. Several were consulted.
+VibeBuddy OS is licensed under the [Apache License 2.0](./LICENSE), like the Microduck project it
+was forked from. Contributions to software in this repository are accepted under the same license.
