@@ -82,7 +82,7 @@ done
 # nobody can keep in a shell profile: `DUCK_BOARD=radxa@192.168.1.42` goes stale, and the way
 # that reads is a push that hangs until ssh times out.
 #
-# A robot's *name* does not move. `duckctl` finds it over BLE by that name and `net.status`
+# A robot's *name* does not move. `vibectl` finds it over BLE by that name and `net.status`
 # answers with the address it currently has — which makes the radio the way out of exactly the
 # situation the network cannot help with, and needs nothing on the LAN to be known or guessed.
 #
@@ -92,23 +92,23 @@ done
 BOARD_USER="${DUCK_BOARD_USER:-radxa}"
 CACHE_DIR="${DUCK_BOARD_CACHE:-$HOME/.cache/duck/boards}"
 
-# The installed client if there is one, this clone's otherwise. `cargo install --path duckctl` is
+# The installed client if there is one, this clone's otherwise. `cargo install --path vibectl` is
 # what puts it on a PATH, and plenty of clones have never run it.
 #
-# Not named `duckctl`: a function by that name would match its own `duckctl "$@"` below and
+# Not named `vibectl`: a function by that name would match its own `vibectl "$@"` below and
 # recurse until the shell gives up.
 client() {
-    if command -v duckctl >/dev/null 2>&1; then
-        duckctl "$@"
+    if command -v vibectl >/dev/null 2>&1; then
+        vibectl "$@"
     else
-        cargo run -q -p duckctl -- "$@"
+        cargo run -q -p vibectl -- "$@"
     fi
 }
 
 # `net.status` for one robot, JSON on stdout.
 #
-# Only `--name` is passed. A robot with a PIN of its own needs `DUCK_PIN`, which `duckctl`
-# reads for itself (`docs/robot/duckctl.md`) — repeating it here would be a second place to
+# Only `--name` is passed. A robot with a PIN of its own needs `DUCK_PIN`, which `vibectl`
+# reads for itself (`docs/robot/vibectl.md`) — repeating it here would be a second place to
 # keep in step, and passing its factory default unconditionally would override the real one.
 ble_status() {
     client --name "$1" wifi status
@@ -136,7 +136,7 @@ resolve_board() {
     echo "==> asking $robot_name over Bluetooth where it is" >&2
     reply="$(ble_status "$robot_name")" || {
         echo "could not reach $robot_name over Bluetooth" >&2
-        echo "  duckctl scan                                  # is it advertising?" >&2
+        echo "  vibectl scan                                  # is it advertising?" >&2
         echo "  scripts/dev-push.sh $BOARD_USER@<address>        # or say where it is" >&2
         return 1
     }
@@ -151,7 +151,7 @@ print((r.get("result") or {}).get("ip4") or "")')" || return 1
     if [ -z "$address" ]; then
         echo "$robot_name answered over Bluetooth but has no wifi address" >&2
         echo "Join it to a network first — over the same radio, so this needs no ssh:" >&2
-        echo "  duckctl --name '$robot_name' wifi connect <ssid> --psk <passphrase>" >&2
+        echo "  vibectl --name '$robot_name' wifi connect <ssid> --psk <passphrase>" >&2
         return 1
     fi
 
@@ -174,9 +174,9 @@ print((r.get("result") or {}).get("ip4") or "")')" || return 1
 }
 
 # The command line beats the environment, and an address beats a name: an address needs no radio.
-# `DUCK_ROBOT` is the same variable `duckctl` defaults `--name` to, so one exported name serves
+# `DUCK_ROBOT` is the same variable `vibectl` defaults `--name` to, so one exported name serves
 # both tools — and empty means unset in both, so `DUCK_ROBOT= scripts/dev-push.sh radxa@…` works.
-# `--name` here is `duckctl`'s sense of it: which robot to talk to. `provision-board.sh --name`
+# `--name` here is `vibectl`'s sense of it: which robot to talk to. `provision-board.sh --name`
 # means the opposite way round — the name to *give* a board — because provisioning is the one place
 # a name is assigned rather than used to find something.
 if [ -z "$BOARD" ] && [ -z "$ROBOT" ]; then
@@ -286,7 +286,7 @@ VERSION="${CRATE}-dev.local.$(date +%s).g${SHA7}"
 rm -rf staged dist
 
 # `DUCK_REVISION` and no `DUCK_BUILD_TIME`, unlike the release workflows, and it is worth a
-# measurement rather than a shrug. Both are read with `option_env!` in `duck-ipc-proto`, which
+# measurement rather than a shrug. Both are read with `option_env!` in `vibe-ipc-proto`, which
 # every daemon depends on, so a value that changes invalidates it and everything above it: with
 # a fresh timestamp each run, five crates rebuild on every push whether or not a line changed
 # (~30s here); with only the revision, which moves when you commit rather than when you push, an

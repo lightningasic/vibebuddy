@@ -9,7 +9,7 @@
 #
 # What it substitutes, and what it deliberately does not:
 #
-#   {{API_VERSION}}     the version this checkout speaks, read from `duck-ipc-proto`, so the page
+#   {{API_VERSION}}     the version this checkout speaks, read from `vibe-ipc-proto`, so the page
 #                       can tell a person that it and the robot disagree.
 #   {{SIGNALLING_PORT}} left alone. The page reads an unsubstituted port as "no robot served me",
 #                       which is exactly true here and is what selects the rendezvous transport.
@@ -45,7 +45,7 @@ done
 
 # One source of truth for the wire version: the constant every daemon compiles against.
 API_VERSION=$(sed -n 's/^pub const API_VERSION: u32 = \([0-9]*\);.*/\1/p' \
-    "$REPO_ROOT/duck-ipc-proto/src/lib.rs")
+    "$REPO_ROOT/vibe-ipc-proto/src/lib.rs")
 [ -n "$API_VERSION" ] || { echo "could not read API_VERSION" >&2; exit 1; }
 
 STAGE=$(mktemp -d)

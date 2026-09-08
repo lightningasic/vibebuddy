@@ -86,7 +86,7 @@
 # which is read off the board before the reboot while ssh still works. Adopting an address means
 # ssh'ing somewhere new, and doing that to a robot chosen by scan order is worse than waiting.
 #
-# It needs `cargo` and this clone, because `duckctl` is an example rather than an installed
+# It needs `cargo` and this clone, because `vibectl` is an example rather than an installed
 # binary. Without either, the wait is exactly what it was before and says so. Three more things it
 # cannot do:
 #
@@ -122,7 +122,7 @@ ROBOT_NAME=""
 
 # ── the Bluetooth fallback ───────────────────────────────────────────────────
 #
-# `duckctl` is an example rather than a binary — deliberately, so `btleplug` never reaches a
+# `vibectl` is an example rather than a binary — deliberately, so `btleplug` never reaches a
 # robot — which means the only way to run it is `cargo` against this clone.
 BLE_MANIFEST="$(dirname "$0")/../Cargo.toml"
 
@@ -412,7 +412,7 @@ ble_probe_start() {
     [ -z "$BLE_PID" ] || return 0
 
     {
-        if cargo run -q --manifest-path "$BLE_MANIFEST" -p duckctl -- \
+        if cargo run -q --manifest-path "$BLE_MANIFEST" -p vibectl -- \
             --name "$BLE_NAME" --pin "$BLE_PIN" wifi status \
             >"${BLE_DIR}/out" 2>"${BLE_DIR}/err"
         then
@@ -449,7 +449,7 @@ ble_verdict() {
     rm -f "${BLE_DIR}/verdict"
 }
 
-# Why the last probe failed, as `duckctl` put it.
+# Why the last probe failed, as `vibectl` put it.
 #
 # Its own words rather than a paraphrase, and not matched on either: it explains a name nobody
 # answers to, two robots answering to one, a missing adapter and a refused PIN, each differently and
@@ -621,7 +621,7 @@ elif ! command -v cargo >/dev/null 2>&1; then
   address changes across the reboot. Not fatal — the board finishes on its own either way, and
   the wait below is what it always was. Install Rust to get the fallback."
 elif [ ! -f "$BLE_MANIFEST" ]; then
-    warn "${BLE_MANIFEST} is not there, so this is not being run from a clone and duckctl
+    warn "${BLE_MANIFEST} is not there, so this is not being run from a clone and vibectl
   cannot be built — no Bluetooth fallback if the board's address changes across the reboot."
 else
     BLE_NAME="$(learn_ble_name)"
