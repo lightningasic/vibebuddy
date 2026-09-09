@@ -1,0 +1,14 @@
+[package]
+name = "vibe-hal"
+version = "0.11.0"
+edition = "2021"
+description = "VibeBuddy OS hardware abstraction layer — descriptors, bus and device traits"
+license = "Apache-2.0"
+
+[dependencies]
+serde = { workspace = true }
+serde_yaml = "0.9"
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
