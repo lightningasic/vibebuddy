@@ -12,6 +12,10 @@ description = "Robot control core: model, bus, sensing"
 # hand. Not a door onto IPC: nothing here speaks to a socket, and `robotd` already links
 # both crates, so no binary gains a dependency from this edge.
 vibe-ipc-proto = { path = "../vibe-ipc-proto" }
+# The hardware descriptor, so the runtime tables can be *asserted* against the per-form
+# manifest rather than trusted by habit. Test-only in spirit, but the loader lives in the
+# dependency graph because `robotd` (not just the tests) uses it to self-check at boot.
+vibe-hal = { path = "../hal" }
 serde = { workspace = true }
 # The simulator link speaks newline-delimited JSON — see `sim` for why a packed struct shared
 # between two repositories in two languages is the worse trade.

@@ -3758,6 +3758,7 @@ dependencies = [
  "tracing-subscriber",
  "updater",
  "vibe-control",
+ "vibe-hal",
  "vibe-ipc-proto",
  "zstd",
 ]
@@ -5140,6 +5141,7 @@ dependencies = [
  "serialport",
  "thiserror 2.0.19",
  "tracing",
+ "vibe-hal",
  "vibe-ipc-proto",
 ]
 

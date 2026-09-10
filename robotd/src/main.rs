@@ -219,6 +219,12 @@ struct Args {
     #[arg(long)]
     port: Option<String>,
 
+    /// Hardware descriptor override. Defaults to `/etc/vibebuddy/hardware.yaml`, and its
+    /// absence is not an error — the daemon self-checks against the descriptor when it is
+    /// there and otherwise runs on the compiled tables, exactly as before a manifest exists.
+    #[arg(long)]
+    manifest: Option<PathBuf>,
+
     /// Run against a robot made of nothing. For laptop development and tests, and for the cases
     /// `--sim` does not cover: no physics, no falling over, positions that echo back perfectly.
     #[arg(long)]
@@ -907,6 +913,41 @@ async fn main() -> ExitCode {
     }
     if args.no_policy {
         params.policy.enabled = false;
+    }
+
+    // The hardware descriptor: which form this release is running on, and whether the
+    // tuned control rate matches the form's. Nothing here changes behaviour — robotd's
+    // authority remains the compiled tables and the params file — but a boot on a form
+    // whose manifest says something else than the binary assumes is a boot somebody
+    // should be able to see in the journal before the robot walks into a wall.
+    let manifest_path = args
+        .manifest
+        .clone()
+        .unwrap_or_else(|| PathBuf::from(vibe_hal::descriptor::DEFAULT_MANIFEST_PATH));
+    match vibe_hal::HardwareDescriptor::load(&manifest_path) {
+        Ok(desc) => {
+            let hz = params.control.hz as u32;
+            let rate_hz = desc.bus.rate as u32;
+            if hz != rate_hz {
+                tracing::warn!(
+                    form = %desc.name,
+                    control_hz = hz,
+                    manifest_hz = rate_hz,
+                    "control loop rate differs from the hardware descriptor; one of them is wrong"
+                );
+            } else {
+                tracing::info!(
+                    form = %desc.name,
+                    joints = desc.joints.len(),
+                    rate_hz,
+                    "hardware descriptor loaded",
+                );
+            }
+        }
+        Err(e) => tracing::warn!(
+            error = %e,
+            "no usable hardware descriptor; continuing on compiled tables alone"
+        ),
     }
 
     if let Some(Command::Init { duration }) = args.command {

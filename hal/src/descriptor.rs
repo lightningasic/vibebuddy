@@ -185,6 +185,12 @@ impl HardwareDescriptor {
     }
 }
 
+/// Where the board's *active* form is described — the runtime equivalent of the repo's
+/// `hal/manifests/`. A robot ships one manifest at this path (or none, in which case the
+/// daemon falls back to compiled tables and says so). Kept out of the repo tree so a
+/// field-flashed robot does not depend on where the repo was cloned.
+pub const DEFAULT_MANIFEST_PATH: &str = "/etc/vibebuddy/hardware.yaml";
+
 /// The form identifier — the value `robotd` reports as the robot model on health.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Form {

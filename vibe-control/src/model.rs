@@ -222,4 +222,33 @@ mod tests {
             );
         }
     }
+
+    /// The runtime tables must agree with the chicken hardware descriptor. This is the
+    /// cross-crate check the HAL design calls out (`docs/design/hal-design.md` §3 step 1):
+    /// today `model.rs` is the authority and the manifest is the junior copy, so the moment
+    /// they disagree this test fails and someone decides which one is telling the truth —
+    /// instead of both quietly drifting and the robot getting a limb-swap on a rename.
+    ///
+    /// The manifest path is relative to the *workspace* root; tests run from the crate
+    /// directory, so the common ancestor of both is where the climb stops.
+    #[test]
+    fn runtime_tables_match_the_chicken_descriptor() {
+        use std::path::PathBuf;
+
+        let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../hal/manifests/chicken.yaml");
+        let desc = vibe_hal::HardwareDescriptor::load(&manifest)
+            .unwrap_or_else(|e| panic!("chicken.yaml must load: {e}"));
+
+        // Joint IDs, in wire order — a reorder here is a limb-swap on the wire.
+        let desc_ids: Vec<u8> = desc.joints.iter().map(|j| j.id).collect();
+        assert_eq!(desc_ids, JOINT_IDS, "servo IDs drifted from the descriptor");
+
+        // Names, in wire order — the protocol's JOINT_NAMES.
+        let desc_names: Vec<&str> = desc.joints.iter().map(|j| j.name.as_str()).collect();
+        assert_eq!(desc_names, JOINT_NAMES, "joint names drifted from the descriptor");
+
+        // The IMU rides the same bus; its id must match the runtime's.
+        assert_eq!(desc.imu.id, IMU_DXL_ID, "imu id drifted from the descriptor");
+    }
 }
