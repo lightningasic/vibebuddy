@@ -79,9 +79,12 @@ until three things have happened:
 1. **The chicken descriptor is verified as *the* table.** A test in `vibe-control` (or
    `robotd`) asserts `model.rs` still matches `hal/manifests/chicken.yaml`. Until then the
    two can legitimately disagree and the YAML is the junior copy.
-2. **A consumer exists.** `robotd` gains a startup step that loads the descriptor and
-   *uses* it — at minimum to report `robot.model` from `descriptor.name`, and to size the
-   loop from `bus.rate` instead of a literal.
+2. **A consumer exists and the loop is sized by the descriptor.** `robotd` loads the
+   descriptor at boot; when present, its `bus.rate` *is* the control loop rate (the
+   tuned rate is a fact about the form's silicon, so the manifest wins over the params
+   default and says so in the journal when they disagree). The params file's
+   `control.hz` remains the editable fallback for boards with no manifest, and the
+   boot log reports the form name and joint count either way.
 3. **A second form exists.** The whole point; until a cat or doge board exists, this is
    speculative generality in the shape of YAML.
 

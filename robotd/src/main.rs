@@ -916,24 +916,27 @@ async fn main() -> ExitCode {
     }
 
     // The hardware descriptor: which form this release is running on, and whether the
-    // tuned control rate matches the form's. Nothing here changes behaviour — robotd's
-    // authority remains the compiled tables and the params file — but a boot on a form
-    // whose manifest says something else than the binary assumes is a boot somebody
-    // should be able to see in the journal before the robot walks into a wall.
+    // tuned control rate matches the form's. The descriptor is the board-level truth —
+    // the tuned loop rate is a fact about the form's silicon, not an operator's taste —
+    // so when a manifest exists, its `bus.rate` is adopted for the control loop and the
+    // params file's `control.hz` is kept as the editable fallback for boards with no
+    // manifest. A mismatch is logged loudly either way; nobody boots a robot whose
+    // loop rate was silently switched out from under them.
     let manifest_path = args
         .manifest
         .clone()
         .unwrap_or_else(|| PathBuf::from(vibe_hal::descriptor::DEFAULT_MANIFEST_PATH));
     match vibe_hal::HardwareDescriptor::load(&manifest_path) {
         Ok(desc) => {
-            let hz = params.control.hz as u32;
+            let hz = params.control.hz;
             let rate_hz = desc.bus.rate as u32;
             if hz != rate_hz {
+                params.control.hz = rate_hz;
                 tracing::warn!(
                     form = %desc.name,
-                    control_hz = hz,
-                    manifest_hz = rate_hz,
-                    "control loop rate differs from the hardware descriptor; one of them is wrong"
+                    from_hz = hz,
+                    to_hz = rate_hz,
+                    "control loop rate adopted from the hardware descriptor; the params file disagreed"
                 );
             } else {
                 tracing::info!(
