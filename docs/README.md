@@ -48,6 +48,7 @@ own the mechanism is the bug.
 |---|---|
 | [`architecture.md`](design/architecture.md) | The service split, the IPC contract, state ownership, safety and authority. |
 | [`hal-design.md`](design/hal-design.md) | The hardware abstraction layer: descriptors per form, the bus/device contracts, and the path from the hard-coded alpha table to multi-form. |
+| [`descriptor-bom-checklist.md`](design/descriptor-bom-checklist.md) | The ceremony for moving a form's descriptor from `0.1` placeholder to `1.0`: what to measure on a real board, how, and what a `1.0` actually asserts. |
 | [`robotd-design.md`](design/robotd-design.md) | The control loop: the Dynamixel bus and who owns the port, the model, sensing, observations, policy, safety — and what else hangs off the tick. |
 | [`updater-design.md`](design/updater-design.md) | The update engine: verification, atomic swap, health gate, rollback, release format. |
 | [`policy-channel-design.md`](design/policy-channel-design.md) | Where the ONNX policies come from: the `policies` component, trying someone else's, and what `reset` puts back. |

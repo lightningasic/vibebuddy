@@ -86,7 +86,10 @@ until three things have happened:
    `control.hz` remains the editable fallback for boards with no manifest, and the
    boot log reports the form name and joint count either way.
 3. **A second form exists.** The whole point; until a cat or doge board exists, this is
-   speculative generality in the shape of YAML.
+   speculative generality in the shape of YAML. The procedure that turns a placeholder
+   into a verified `1.0` is [`descriptor-bom-checklist.md`](descriptor-bom-checklist.md):
+   what to measure on a real board, how, and what a `1.0` asserts. Current `cat.yaml` /
+   `doge.yaml` are `0.1` placeholders pending that ceremony.
 
 Each step is a small, reviewable change. The one that is *not* small — replacing the
 `[f64; 15]` arrays in the loop with runtime-sized vectors — is deliberately out of scope
