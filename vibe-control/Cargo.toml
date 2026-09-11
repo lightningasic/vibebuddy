@@ -5,6 +5,18 @@ edition.workspace = true
 license.workspace = true
 description = "Robot control core: model, bus, sensing"
 
+# `vibe-scan` — the HAL BOM ceremony's field tool. `robotd` trusts the compiled joint table
+# because the alpha board is baked into release binaries, and it *assumes* the ids on the
+# bus match that table. A scan is the exact opposite exercise: it finds out which ids
+# actually answer, with no prior. That is why this bin does **not** reuse `JOINT_IDS` or
+# `DynamixelIo::open` — both would smuggle the table back in as a bias. It opens the bus
+# and pings `0..=252`, nothing more; pass `--manifest` only when you want the answers
+# checked against a descriptor, which is a *later* step of the ceremony, not its premise.
+# See `docs/design/descriptor-bom-checklist.md` §3.2–3.3.
+[[bin]]
+name = "vibe-scan"
+path = "src/bin/scan.rs"
+
 [dependencies]
 # For `JOINT_NAMES` alone. The joint *order* is protocol — the state stream carries
 # `joints` and `targets` as bare arrays — so the table lives in the crate every client
