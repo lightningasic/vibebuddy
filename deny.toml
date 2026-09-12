@@ -1,0 +1,78 @@
+# cargo-deny configuration — run with `cargo deny check` (CI: the `deny` job in ci.yml).
+#
+# Three gates, in the order they matter for a robot that installs signed updates:
+#   advisories — a crate with a known vulnerability must not ship;
+#   licenses   — we distribute compiled binaries, so every dependency's terms travel with them;
+#   bans       — a second copy of a crate is a second copy of its bugs, and a second TLS stack
+#                is a second implementation to trust.
+#
+# The one git dependency (`bmi088`, the head-IMU driver) is allowed by name below rather than
+# by wildcard: a new git source should be a deliberate act, not a silent one.
+
+[graph]
+# The two triples this workspace actually builds for: the robot's board and a developer host.
+# Anything else would be checking code that never ships.
+targets = [
+    { triple = "aarch64-unknown-linux-gnu" },
+    { triple = "x86_64-unknown-linux-gnu" },
+]
+
+[advisories]
+version = 2
+vulnerability = "deny"
+unmaintained = "all"
+yanked = "warn"
+ignore = [
+    # `paste` is unmaintained and reached only through `rustypot` (the servo driver) and
+    # `simba` (via `ahrs` → `bmi088`). Both are upstream of us; neither has a replacement we
+    # control. Revisit if either moves off it.
+    "RUSTSEC-2024-0436",
+]
+
+[licenses]
+version = 2
+# A crate whose license cargo-deny cannot read with this much confidence is reported rather
+# than guessed at.
+confidence-threshold = 0.9
+allow = [
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "MIT",
+    "MIT-0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "CC0-1.0",
+    "Unlicense",
+    "BSL-1.0",
+    "CDLA-Permissive-2.0",
+    "MPL-2.0",
+    "Unicode-3.0",
+]
+
+# `bmi088` (pollen-robotics/bmi088-rs) declares no license field and ships no LICENSE file, so
+# cargo-deny has nothing to read. The expression below is what the rest of this organisation's
+# code is under; the real fix is a license field in that repository. Tracked here so the check
+# is not silently disabled for every crate.
+[[licenses.clarify]]
+name = "bmi088"
+expression = "Apache-2.0"
+license-files = []
+
+[bans]
+multiple-versions = "warn"
+# A `*` version requirement makes a build depend on whatever was published most recently.
+wildcards = "deny"
+deny = [
+    # One TLS stack, and it is `rustls` (via `hyper-rustls`). A second one would be a second
+    # implementation of the code that decides whether an update is really from us.
+    { name = "openssl" },
+    { name = "openssl-sys" },
+    { name = "native-tls" },
+]
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-git = ["https://github.com/pollen-robotics/bmi088-rs"]

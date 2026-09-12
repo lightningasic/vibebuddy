@@ -1,0 +1,25 @@
+version: 2
+updates:
+  # Cargo dependencies. Minor and patch bumps are grouped into one pull request a week so the
+  # queue stays readable; a major bump arrives on its own, because that is the one worth reading
+  # before merging. The `deny` job in ci.yml re-checks advisories and licenses on every one.
+  - package-ecosystem: cargo
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      cargo-minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  # The workflows' actions. ci.yml pins each to a commit SHA with the version in a trailing
+  # comment; Dependabot is what moves those SHAs forward, rewriting the SHA and the comment
+  # together. Without this the pins would be secure and frozen.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns: ["*"]
