@@ -61,4 +61,4 @@ semver.workspace = true
 sha2 = "0.11.0"
 tar = "0.4.46"
 tempfile = "3.27.0"
-zstd = "0.13"
+zstd = "0.14"
