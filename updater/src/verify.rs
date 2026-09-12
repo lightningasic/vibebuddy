@@ -335,10 +335,8 @@ pub fn extract_artifact(archive: &Path, dest: &Path, limits: ArchiveLimits) -> R
             )));
         }
 
-        let name = entry
-            .path()
-            .map(|p| p.display().to_string())
-            .unwrap_or_default();
+        let rel_path = entry.path().map(|p| p.into_owned()).unwrap_or_default();
+        let name = rel_path.display().to_string();
 
         // `unpack_in` returns Ok(false) when the entry path is unsafe (absolute,
         // or escaping `dest`). Treat that as tampering, not something to skip:
@@ -353,8 +351,51 @@ pub fn extract_artifact(archive: &Path, dest: &Path, limits: ArchiveLimits) -> R
                 "archive entry {name:?} would escape the destination; refusing"
             )));
         }
+
+        strip_setid(&dest.join(&rel_path))?;
     }
 
+    Ok(())
+}
+
+/// Drop the set-user-ID and set-group-ID bits from an extracted entry.
+///
+/// `unpack_in` restores the mode from the archive, which is what the hooks and daemons need
+/// (their exec bit). The setuid and setgid bits are a different thing: nothing this updater
+/// installs is started by a user — systemd starts every daemon as the unit's `User=` — so a
+/// setuid binary in a release has no job. Dropping the bits means a release cannot leave a
+/// root-owned setuid binary on disk for some later, lesser bug to pick up, and it costs the
+/// genuine case nothing.
+///
+/// Only regular files are touched: `set_permissions` follows symlinks, so a symlink entry
+/// would chmod whatever it points at instead of the link itself.
+#[cfg(unix)]
+fn strip_setid(path: &Path) -> Result<(), Error> {
+    use std::os::unix::fs::PermissionsExt;
+
+    // A hardlink entry can name a path that does not exist yet, and a dangling entry is not a
+    // security failure — the traversal check above is what guards the destination.
+    let Ok(meta) = std::fs::symlink_metadata(path) else {
+        return Ok(());
+    };
+    if !meta.file_type().is_file() {
+        return Ok(());
+    }
+    let mode = meta.permissions().mode();
+    if mode & 0o6000 != 0 {
+        std::fs::set_permissions(path, std::fs::Permissions::from_mode(mode & !0o6000)).map_err(
+            |e| Error::Io {
+                path: path.to_path_buf(),
+                source: e,
+            },
+        )?;
+    }
+    Ok(())
+}
+
+/// Not unix: there are no setuid bits to drop.
+#[cfg(not(unix))]
+fn strip_setid(_path: &Path) -> Result<(), Error> {
     Ok(())
 }
 
@@ -551,6 +592,45 @@ mod tests {
 
         assert_eq!(std::fs::read(dest.join("bin/robotd")).unwrap(), b"elf");
         assert_eq!(std::fs::read(dest.join("version.toml")).unwrap(), b"v=1");
+    }
+
+    /// A release may not leave a setuid binary behind, and the exec bit it does need must
+    /// survive the same pass.
+    #[test]
+    #[cfg(unix)]
+    fn strips_setuid_and_setgid_but_keeps_the_exec_bit() {
+        use std::os::unix::fs::PermissionsExt;
+
+        let dir = tempfile::tempdir().unwrap();
+        let archive = dir.path().join("setid.tar.zst");
+        make_archive(
+            &archive,
+            &[
+                ("bin/sneaky", b"elf", 0o4755),
+                ("bin/plain", b"elf", 0o755),
+            ],
+        );
+
+        let dest = dir.path().join("out");
+        extract_artifact(&archive, &dest, ArchiveLimits::default()).unwrap();
+
+        let mode = |p: &Path| {
+            std::fs::symlink_metadata(p)
+                .unwrap()
+                .permissions()
+                .mode()
+                & 0o7777
+        };
+        assert_eq!(
+            mode(&dest.join("bin/sneaky")),
+            0o755,
+            "the setuid bit must not survive extraction"
+        );
+        assert_eq!(
+            mode(&dest.join("bin/plain")),
+            0o755,
+            "an ordinary exec bit must survive it"
+        );
     }
 
     /// A traversal entry must be refused outright, not silently skipped.
