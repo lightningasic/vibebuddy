@@ -8,6 +8,12 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # A git dependency pinned to a tag. Dependabot reads `tag = "v0.1.2"` as a version
+      # requirement, then cannot reconcile it with the crate's own `version = "0.1.0"` and
+      # errors out the whole update run. The pin is deliberate (see tof/Cargo.toml), and a
+      # second repository is not something Dependabot can bump for us anyway.
+      - dependency-name: bmi088
     groups:
       cargo-minor-patch:
         patterns: ["*"]
