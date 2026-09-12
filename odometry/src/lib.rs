@@ -22,8 +22,8 @@
 //!
 //! Alpha only, like the daemon: v1/v1.5 geometry stayed in the prototype.
 
-use vibe_ipc_proto::JOINT_NAMES;
 use kinematics::{Model, Pose, Quat, SiteId};
+use vibe_ipc_proto::JOINT_NAMES;
 
 /// Sole half-extents along the foot-site frame X (front/back) and Y
 /// (left/right). Placeholder carried over from the prototype: the v1.5 sole

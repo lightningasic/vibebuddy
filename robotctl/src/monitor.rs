@@ -21,7 +21,6 @@ use std::sync::mpsc::{self, Receiver, RecvTimeoutError, TryRecvError};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use vibe_ipc_proto as proto;
 use ratatui::DefaultTerminal;
 use ratatui::crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
 use ratatui::layout::{Alignment, Constraint, Layout};
@@ -30,6 +29,7 @@ use ratatui::text::{Line, Span};
 use ratatui::widgets::{
     Block, Cell, Paragraph, RenderDirection, Row, Sparkline, Table, TableState,
 };
+use vibe_ipc_proto as proto;
 
 use crate::{Client, Failure, duck, exit, path_map};
 

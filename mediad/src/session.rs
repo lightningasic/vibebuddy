@@ -21,8 +21,8 @@
 //! before arriving. `route::permits` refuses `system.authenticate` by name rather than answering
 //! it, so a client that asks gets a clear no instead of a lie.
 
-use vibe_ipc_proto as proto;
 use tokio::sync::mpsc;
+use vibe_ipc_proto as proto;
 
 use crate::route::{self, Route};
 use crate::upstream::Pool;

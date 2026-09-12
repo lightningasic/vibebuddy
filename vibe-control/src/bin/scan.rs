@@ -106,7 +106,10 @@ fn main() {
         }
     }
 
-    println!("scan of {port} at {baud} baud: {n} id(s) answer", n = found.len());
+    println!(
+        "scan of {port} at {baud} baud: {n} id(s) answer",
+        n = found.len()
+    );
     for id in &found {
         println!("  id {id}");
     }
@@ -121,8 +124,7 @@ fn main() {
                 }
                 listed.push(desc.imu.id);
 
-                let found_set: std::collections::HashSet<u8> =
-                    found.iter().copied().collect();
+                let found_set: std::collections::HashSet<u8> = found.iter().copied().collect();
 
                 let mut missing = Vec::new();
                 for id in &listed {

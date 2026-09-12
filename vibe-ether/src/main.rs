@@ -51,10 +51,10 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 use clap::Parser;
-use vibe_ipc_proto as proto;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::{TcpStream, UnixStream};
 use tokio::sync::Mutex;
+use vibe_ipc_proto as proto;
 
 /// How far a beacon carries, in metres.
 ///

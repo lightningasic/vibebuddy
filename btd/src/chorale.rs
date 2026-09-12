@@ -116,9 +116,9 @@ mod radio {
 
     use bluer::adv::Advertisement;
     use bluer::monitor::{Monitor, MonitorEvent, Pattern, RssiSamplingPeriod};
-    use vibe_ipc_proto::ChoraleBeacon;
     use futures::StreamExt;
     use tokio::sync::mpsc;
+    use vibe_ipc_proto::ChoraleBeacon;
 
     use super::{BEACON_INTERVAL_MAX, BEACON_INTERVAL_MIN, beacon_data, beacon_in, scan_pattern};
 

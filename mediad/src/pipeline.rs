@@ -85,13 +85,13 @@
 use std::sync::{Arc, Mutex};
 
 use anyhow::{Context, Result, anyhow, bail};
-use vibe_ipc_proto as proto;
 use gstreamer as gst;
 use gstreamer::prelude::*;
 use gstreamer_app as gst_app;
 use gstreamer_video as gst_video;
 use gstreamer_webrtc as gst_webrtc;
 use tokio::sync::mpsc;
+use vibe_ipc_proto as proto;
 
 /// How far the picture is turned *in the pipeline* — which, by default, is not at all.
 ///

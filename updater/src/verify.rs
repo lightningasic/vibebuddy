@@ -605,22 +605,13 @@ mod tests {
         let archive = dir.path().join("setid.tar.zst");
         make_archive(
             &archive,
-            &[
-                ("bin/sneaky", b"elf", 0o4755),
-                ("bin/plain", b"elf", 0o755),
-            ],
+            &[("bin/sneaky", b"elf", 0o4755), ("bin/plain", b"elf", 0o755)],
         );
 
         let dest = dir.path().join("out");
         extract_artifact(&archive, &dest, ArchiveLimits::default()).unwrap();
 
-        let mode = |p: &Path| {
-            std::fs::symlink_metadata(p)
-                .unwrap()
-                .permissions()
-                .mode()
-                & 0o7777
-        };
+        let mode = |p: &Path| std::fs::symlink_metadata(p).unwrap().permissions().mode() & 0o7777;
         assert_eq!(
             mode(&dest.join("bin/sneaky")),
             0o755,

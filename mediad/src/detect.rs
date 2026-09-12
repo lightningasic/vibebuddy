@@ -18,8 +18,8 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, Instant};
 
 use anyhow::{Context, Result};
-use vibe_detect::{Detection, Turn, decode, letterbox_from_uyvy};
 use tokio::sync::broadcast;
+use vibe_detect::{Detection, Turn, decode, letterbox_from_uyvy};
 
 use crate::pipeline::Frames;
 

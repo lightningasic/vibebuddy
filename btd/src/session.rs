@@ -10,8 +10,8 @@
 //! result. That is what keeps it a transport rather than a second implementation of the API,
 //! and it is why adding a protocol method costs one line in [`crate::route`] and nothing here.
 
-use vibe_ipc_proto as proto;
 use tokio::sync::mpsc;
+use vibe_ipc_proto as proto;
 
 use crate::framing::{self, Reassembler};
 use crate::link::{Link, QUEUE};

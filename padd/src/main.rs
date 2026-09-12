@@ -85,8 +85,8 @@ use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
 use clap::Parser;
-use vibe_ipc_proto as proto;
 use gilrs::{Axis, Button, Gilrs};
+use vibe_ipc_proto as proto;
 
 #[cfg(target_os = "linux")]
 mod tap;

@@ -31,9 +31,9 @@
 
 use std::time::{Duration, Instant};
 
-use vibe_ipc_proto as proto;
 use sounds::chorale::beat::{Conductor, Follower};
 use sounds::chorale::{Part, Score, seat_all};
+use vibe_ipc_proto as proto;
 
 /// How long a heard beacon counts for.
 ///

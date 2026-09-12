@@ -36,8 +36,8 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 use arc_swap::ArcSwapOption;
-use vibe_ipc_proto as proto;
 use kinematics::hand::{self, Tracker};
+use vibe_ipc_proto as proto;
 
 /// How long a depth frame stays playable.
 ///

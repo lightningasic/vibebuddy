@@ -24,10 +24,10 @@ use std::io;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use vibe_ipc_proto as proto;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::UnixStream;
 use tokio::sync::mpsc;
+use vibe_ipc_proto as proto;
 
 /// Long enough for a loaded board, short enough that a peer gets an answer rather than a spinner.
 /// A unix socket connect either succeeds immediately or the daemon is not there.

@@ -37,8 +37,8 @@ use std::process::ExitCode;
 use std::time::{Duration, Instant};
 
 use clap::{Args, CommandFactory, Parser, Subcommand};
-use vibe_ipc_proto as proto;
 use robotd_params::Slot;
+use vibe_ipc_proto as proto;
 
 mod configure;
 mod duck;

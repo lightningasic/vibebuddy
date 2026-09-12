@@ -31,8 +31,8 @@
 
 use std::time::Duration;
 
-use vibe_ipc_proto as proto;
 use tokio::sync::mpsc;
+use vibe_ipc_proto as proto;
 
 use crate::upstream::{Pool, Sockets};
 

@@ -235,8 +235,8 @@ mod tests {
     fn runtime_tables_match_the_chicken_descriptor() {
         use std::path::PathBuf;
 
-        let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../hal/manifests/chicken.yaml");
+        let manifest =
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../hal/manifests/chicken.yaml");
         let desc = vibe_hal::HardwareDescriptor::load(&manifest)
             .unwrap_or_else(|e| panic!("chicken.yaml must load: {e}"));
 
@@ -246,9 +246,15 @@ mod tests {
 
         // Names, in wire order — the protocol's JOINT_NAMES.
         let desc_names: Vec<&str> = desc.joints.iter().map(|j| j.name.as_str()).collect();
-        assert_eq!(desc_names, JOINT_NAMES, "joint names drifted from the descriptor");
+        assert_eq!(
+            desc_names, JOINT_NAMES,
+            "joint names drifted from the descriptor"
+        );
 
         // The IMU rides the same bus; its id must match the runtime's.
-        assert_eq!(desc.imu.id, IMU_DXL_ID, "imu id drifted from the descriptor");
+        assert_eq!(
+            desc.imu.id, IMU_DXL_ID,
+            "imu id drifted from the descriptor"
+        );
     }
 }

@@ -34,9 +34,9 @@ use std::time::{Duration, Instant};
 
 use anyhow::{Context, Result};
 use clap::Parser;
-use vibe_ipc_proto as proto;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::{UnixListener, UnixStream};
+use vibe_ipc_proto as proto;
 
 mod imu;
 mod status;

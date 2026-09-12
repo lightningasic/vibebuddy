@@ -12,9 +12,9 @@ use configd::pad::{FakePads, Pads};
 use configd::power;
 use configd::store::Store;
 use configd::{pad, units};
-use vibe_ipc_proto as proto;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::{UnixListener, UnixStream};
+use vibe_ipc_proto as proto;
 
 /// Owner and group read/write, nothing for others — the same as every other socket here. This
 /// is the first layer of access control: reaching the socket at all requires the group.

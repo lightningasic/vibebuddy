@@ -13,8 +13,8 @@ use std::collections::{HashMap, HashSet};
 use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
-use vibe_ipc_proto as proto;
 use futures::StreamExt;
+use vibe_ipc_proto as proto;
 use zbus::zvariant::{OwnedObjectPath, OwnedValue, Value};
 
 use crate::net::{Net, NetResult};

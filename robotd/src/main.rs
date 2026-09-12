@@ -34,6 +34,8 @@ use std::time::{Duration, Instant};
 
 use arc_swap::{ArcSwap, ArcSwapOption};
 use clap::{Parser, Subcommand};
+use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+use tokio::net::{UnixListener, UnixStream};
 use vibe_control::fall::{FallPredictor, FallPredictorConfig};
 use vibe_control::io::RobotIo;
 use vibe_control::obs::{BodyPose, Command as PolicyCommand};
@@ -41,8 +43,6 @@ use vibe_control::policy::{DEFAULT_STANDING_THRESHOLD, Policy, PolicyError, Poli
 use vibe_control::safety::{Safety, SafetyConfig};
 use vibe_control::{DEFAULT_POSITION, FakeIo, NUM_JOINTS};
 use vibe_ipc_proto as proto;
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
-use tokio::net::{UnixListener, UnixStream};
 
 use control::{Controller, Driving, SkillTuning, Tuning};
 use intents::Intents;
