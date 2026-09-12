@@ -372,8 +372,8 @@ cargo run -p xtask -- package \
     --include "robotd/systemd/robotd.service=systemd/robotd.service" \
     --include "hooks/postinstall=hooks/postinstall" \
     --include "scripts/setup-gstreamer.sh=scripts/setup-gstreamer.sh" \
-    --include "duck-detect/models/duck_detect.rknn=models/duck_detect.rknn" \
-    --include "duck-detect/models/duck_detect.onnx=models/duck_detect.onnx" \
+    --include "vibe-detect/models/duck_detect.rknn=models/duck_detect.rknn" \
+    --include "vibe-detect/models/duck_detect.onnx=models/duck_detect.onnx" \
     --include "scripts/setup-npu.sh=scripts/setup-npu.sh" \
     --include "deploy/overlays/rk3568-npu-enable.dts=deploy/overlays/rk3568-npu-enable.dts" \
     --include "scripts/setup-rkaiq.sh=scripts/setup-rkaiq.sh" \
