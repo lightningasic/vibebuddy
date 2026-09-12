@@ -22,7 +22,7 @@ toml = "0.9"
 serde_json.workspace = true
 # The lossless writer in `edit`. Pure Rust like everything else here — no C toolchain and no
 # network stack — which is what lets the crate on the recovery path own it.
-toml_edit = "0.23"
+toml_edit = "0.25"
 thiserror.workspace = true
 tracing.workspace = true
 

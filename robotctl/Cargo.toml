@@ -34,7 +34,7 @@ robotd-params = { path = "../robotd-params" }
 toml = "0.9"
 # Edits `robotd.toml` losslessly: comments, ordering and unknown keys survive. The plain
 # `toml` crate would re-serialize the file and destroy every comment in it.
-toml_edit = "0.23"
+toml_edit = "0.25"
 # `robotctl monitor`'s live view, and nothing else. Terminal only — no http, no crypto, no
 # async runtime, so the rule this file opens with still holds: none of the update engine's
 # tree comes in with it. Default features off because the widget set we do not draw (calendar,
