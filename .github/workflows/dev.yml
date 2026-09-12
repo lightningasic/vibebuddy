@@ -36,7 +36,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # `targets:` is not optional here — without it the aarch64 std is absent and the build
       # fails at "can't find crate for `core`", which reads like a broken toolchain rather
@@ -44,7 +44,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
         with:
           targets: aarch64-unknown-linux-gnu
-      - uses: Swatinem/rust-cache@49a0bdc70d2e1b713ca9e2869b211fcce03d3c1c # v2
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
       # GStreamer and libudev for the *target*, unpacked from the robot's own Debian packages.
       #
       # This replaced Ubuntu multiarch from ports.ubuntu.com, which served libudev alone and could
@@ -56,7 +56,7 @@ jobs:
       # Cached on the script, because the package list lives in it: edit the list and the cache
       # misses, which is exactly when it should.
       - name: Cache the aarch64 sysroot
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/duck-sysroot
           key: duck-sysroot-${{ hashFiles('scripts/cross-sysroot.sh') }}
