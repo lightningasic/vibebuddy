@@ -18,7 +18,7 @@ image = { version = "0.25", default-features = false, features = ["jpeg"] }
 # The CPU fallback. `load-dynamic` for the same reason `vibe-detect` dlopens the NPU runtime: the
 # library belongs to the board, not to the build — and `setup-board.sh` already puts it there for
 # robotd's policies, so a board that can walk can also see.
-ort = { version = "=2.0.0-rc.11", default-features = false, features = ["load-dynamic"] }
+ort = { version = "=2.0.0-rc.13", default-features = false, features = ["load-dynamic"] }
 
 [[bin]]
 name = "duck-bench"
